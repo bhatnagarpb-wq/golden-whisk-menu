@@ -102,10 +102,26 @@ def check_inline_scripts_parse():
     ok(f"{len(scripts)} inline script blocks are syntactically valid")
 
 
+def check_cname():
+    src = REPO_ROOT / "build" / "CNAME"
+    dist_cname = REPO_ROOT / "dist" / "CNAME"
+    if not src.exists():
+        # No custom domain configured — nothing to check.
+        return
+    if not dist_cname.exists():
+        fail("build/CNAME exists but was not copied into dist/ — check generate.py")
+    expected = src.read_text().strip()
+    actual = dist_cname.read_text().strip()
+    if actual != expected:
+        fail(f"dist/CNAME ({actual!r}) does not match build/CNAME ({expected!r})")
+    ok(f"dist/CNAME matches build/CNAME ({expected})")
+
+
 def main():
     check_vendor_checksums()
     check_html_structure()
     check_inline_scripts_parse()
+    check_cname()
     print("\nAll checks passed.")
 
 
