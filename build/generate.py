@@ -628,7 +628,7 @@ td.price {{
     <p class="eyebrow">Chandigarh Tricity</p>
     <h1 class="wordmark">The Golden Whisk</h1>
     <p class="note">the full site is still baking — here's today's board</p>
-    <p class="intro">Every cake below is mixed and iced only after you order it — nothing sits ready on a shelf. Two sizes on most flavours: a 1&nbsp;kg cake serves about 12–15, a 650&nbsp;g serves about 8–10. Message us with your flavour, size, and the date you need it.</p>
+    <p class="intro">Every cake below is mixed and iced only after you order it — nothing sits ready on a shelf. Two sizes on most flavours: a 1&nbsp;kg cake serves about 12–15, a 650&nbsp;g serves about 8–10. Message us on WhatsApp with your flavour, size, and the date you need it.</p>
   </header>
 
   <nav class="jump" aria-label="Jump to a category">
