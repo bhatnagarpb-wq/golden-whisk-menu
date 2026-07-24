@@ -796,4 +796,12 @@ DIST_DIR.mkdir(parents=True, exist_ok=True)
 out_path = DIST_DIR / "index.html"
 out_path.write_text(html_out)
 
+# GitHub Pages reads this file to know which custom domain to serve the
+# site on and to provision the HTTPS certificate for. Sourced from
+# build/CNAME rather than hardcoded here so the domain is easy to find
+# and change in one place.
+cname_src = BUILD_DIR / "CNAME"
+if cname_src.exists():
+    (DIST_DIR / "CNAME").write_text(cname_src.read_text().strip())
+
 print("wrote", len(html_out), "bytes to", out_path)
