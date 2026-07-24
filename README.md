@@ -58,3 +58,5 @@ string further down the same file.
 - The live page is served straight from the `dist/` artifact GitHub Pages
   publishes; `dist/` itself is gitignored and never committed, so there's
   no stale build sitting in git history.
+
+<!-- pipeline smoke test: 2026-07-24T03:36:48Z -->
