@@ -1,8 +1,14 @@
 name: Build and deploy cake board
 
+
+# Deliberately NOT triggered on push to main. There's no separate staging
+# environment on GitHub's side — merging is the last gate before this
+# workflow would touch the live domain, and "CI passed" isn't the same
+# as "someone looked at it." So deploys are manual: after merging (and
+# reviewing on local staging beforehand), run
+#   gh workflow run deploy.yml --repo bhatnagarpb-wq/golden-whisk-menu
+# or use the "Run workflow" button under the Actions tab.
 on:
-  push:
-    branches: [main]
   workflow_dispatch: {}
 
 # Least-privilege by default: nothing is writable at the workflow level.
