@@ -77,16 +77,16 @@ def check_common(name, html):
 
 
 def check_nav(name, html, active_href):
-    if 'class="site-nav"' not in html:
-        fail(f"{name}: missing the top site-nav")
+    if 'class="nav" id="nav"' not in html:
+        fail(f"{name}: missing the top nav")
     if not re.search(r'<a href="index\.html"[^>]*>Home</a>', html):
-        fail(f"{name}: site-nav is missing a Home link")
+        fail(f"{name}: nav is missing a Home link")
     if not re.search(r'<a href="menu\.html"[^>]*>Menu</a>', html):
-        fail(f"{name}: site-nav is missing a Menu link")
-    active_pattern = rf'<a href="{re.escape(active_href)}" class="is-active">'
+        fail(f"{name}: nav is missing a Menu link")
+    active_pattern = rf'<a href="{re.escape(active_href)}" class="is-current">'
     if not re.search(active_pattern, html):
-        fail(f"{name}: site-nav does not mark {active_href} as is-active")
-    ok(f"{name}: site-nav present and pointing at {active_href} as active")
+        fail(f"{name}: nav does not mark {active_href} as is-current")
+    ok(f"{name}: nav present and pointing at {active_href} as active")
 
 
 def check_home(html):

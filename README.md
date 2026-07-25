@@ -2,8 +2,11 @@
 
 A made-to-order cake site for The Golden Whisk, published as a stand-in
 while the full site is being built. Two pages: Home (`index.html` — the
+main WordPress site's actual hero, brought over verbatim, plus the
 custom-cake gallery) and Menu (`menu.html` — flavours and prices), linked
-by a persistent top nav.
+by a shared top nav also brought over from the WordPress theme (adapted
+to this site's two real pages instead of the six section anchors the
+full homepage links to).
 
 ## How it's built
 
