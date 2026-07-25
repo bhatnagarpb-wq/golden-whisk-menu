@@ -8,11 +8,18 @@ from pathlib import Path
 BUILD_DIR = Path(__file__).resolve().parent
 REPO_ROOT = BUILD_DIR.parent
 FONTS_DIR = BUILD_DIR / "assets" / "fonts"
+PHOTOS_DIR = BUILD_DIR / "assets" / "photos"
 VENDOR_DIR = BUILD_DIR / "vendor"
 DIST_DIR = REPO_ROOT / "dist"
 
 def load(key):
     return (FONTS_DIR / f"{key}.b64").read_text().strip()
+
+def load_photo(key):
+    """Base64 WebP for a gallery photo, sourced from build/assets/photos/*.b64
+    (originals kept in build/assets/photos/originals/ for reference — see
+    build/assets/photos/README.md for how these were optimized)."""
+    return (PHOTOS_DIR / f"{key}.b64").read_text().strip()
 
 FONTS = {k: load(k) for k in ["fraunces", "inter400", "inter600", "dmmono400", "dmmono500", "caveat", "dmseriftext"]}
 
@@ -79,95 +86,68 @@ PIECE = [
     ("Honey-nut Crunch Cupcakes", 80),
 ]
 
-# ---- custom-cake gallery: a few illustrated highlights, shown below the
-# masthead intro. Not from the price lists above — these are one-off
-# custom orders, so no fixed per-kg price, just a minimum weight. ----
-
-def cake_illustration(backdrop, tier1, tier2, accent, motif):
-    """A simple flat-shape two-tier cake, in the same hand-drawn-icon style
-    as the rest of the site's SVGs (no photography). `motif` picks the
-    small decorative accent: star (mermaid), rose (floral), drip
-    (chocolate), or citrus (sunshine)."""
-    if motif == "star":
-        deco = f"""
-        <path d="M225 96 L232 116 L253 116 L236 129 L242 149 L225 137 L208 149 L214 129 L197 116 L218 116 Z" fill="{accent}"/>
-        <path d="M100 150 C92 140 92 158 100 168 C108 158 108 140 100 150 Z" fill="{accent}" transform="rotate(20 100 158)"/>"""
-    elif motif == "rose":
-        deco = f"""
-        <circle cx="222" cy="108" r="16" fill="none" stroke="{accent}" stroke-width="2.4"/>
-        <circle cx="222" cy="108" r="10" fill="none" stroke="{accent}" stroke-width="2.2"/>
-        <circle cx="222" cy="108" r="4.5" fill="{accent}"/>
-        <circle cx="90" cy="150" r="10" fill="none" stroke="{accent}" stroke-width="2"/>
-        <circle cx="90" cy="150" r="4" fill="{accent}"/>"""
-    elif motif == "drip":
-        deco = f"""
-        <path d="M78 168 C78 182 92 182 92 168 C92 180 104 180 104 166 C104 180 116 180 116 170" fill="none" stroke="{accent}" stroke-width="5" stroke-linecap="round"/>
-        <path d="M150 106 C150 120 164 120 164 106 C164 118 176 118 176 104" fill="none" stroke="{accent}" stroke-width="5" stroke-linecap="round"/>"""
-    else:  # citrus
-        deco = f"""
-        <circle cx="222" cy="112" r="17" fill="{accent}" opacity=".9"/>
-        <g stroke="{backdrop}" stroke-width="1.6">
-          <line x1="222" y1="98" x2="222" y2="126"/>
-          <line x1="208" y1="112" x2="236" y2="112"/>
-          <line x1="212" y1="102" x2="232" y2="122"/>
-          <line x1="232" y1="102" x2="212" y2="122"/>
-        </g>"""
-
-    return f"""<svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true">
-      <rect width="300" height="300" fill="{backdrop}"/>
-      <ellipse cx="150" cy="248" rx="88" ry="10" fill="rgba(0,0,0,.18)"/>
-      <rect x="62" y="188" width="176" height="62" rx="16" fill="{tier1}"/>
-      <g fill="{backdrop}" opacity=".5">
-        <circle cx="78" cy="188" r="6"/><circle cx="102" cy="188" r="6"/><circle cx="126" cy="188" r="6"/>
-        <circle cx="150" cy="188" r="6"/><circle cx="174" cy="188" r="6"/><circle cx="198" cy="188" r="6"/><circle cx="222" cy="188" r="6"/>
-      </g>
-      <rect x="100" y="130" width="100" height="58" rx="14" fill="{tier2}"/>
-      <g fill="{backdrop}" opacity=".5">
-        <circle cx="112" cy="130" r="5.5"/><circle cx="132" cy="130" r="5.5"/><circle cx="152" cy="130" r="5.5"/>
-        <circle cx="172" cy="130" r="5.5"/><circle cx="190" cy="130" r="5.5"/>
-      </g>
-      {deco}
-      <g fill="#F3DFA0" opacity=".85">
-        <circle cx="60" cy="90" r="2.4"/><circle cx="245" cy="70" r="2"/><circle cx="255" cy="180" r="2.4"/>
-        <circle cx="45" cy="200" r="2"/><circle cx="180" cy="60" r="2.2"/>
-      </g>
-    </svg>"""
+# ---- custom-cake gallery: real photos of recent custom orders, shown
+# below the masthead intro. Descriptions cover only what's visible in the
+# photo (decoration, technique) — no invented flavour/ingredient claims,
+# since these are real delivered cakes, not menu items. No weight is
+# shown for the same reason: these are one-off orders, not a standing
+# catalogue entry with a knowable minimum. ----
 
 GALLERY = [
     dict(
-        title="Wishes Made of Sugar &amp; Sea",
-        desc="A whimsical two-tiered mermaid masterpiece sculpted in soft pastel lilac, adorned with golden starfishes, pearl accents, and custom hand-crafted waves.",
-        weight="2 kg",
-        svg=cake_illustration("#3E6B62", "#C9A8DE", "#DCC3EA", "#C89B3C", "star"),
+        photo="cake",
+        title="A Golden 50th Anniversary",
+        desc="A two-tier gold and white cake marking fifty years together, finished with pearl accents and a hand-lettered gold message.",
+        occasion="Anniversary",
     ),
     dict(
-        title="Petals &amp; Pistachio",
-        desc="A blush pink celebration cake finished with hand-piped sugar roses, a dusting of crushed pistachio, and delicate gold leaf detailing.",
-        weight="1.5 kg",
-        svg=cake_illustration("#7C8B6F", "#F1C6C9", "#F7DEDF", "#C89B3C", "rose"),
+        photo="cake_on_table",
+        title="Best Husband, Best Dad",
+        desc="A tongue-in-cheek tic-tac-toe cake for a husband and dad, finished with hand-cut silhouettes and piped hearts.",
+        occasion="Birthday",
     ),
     dict(
-        title="Midnight &amp; Gold",
-        desc="Rich dark chocolate ganache cascades over a matte black base, finished with a molten gold drip and scattered edible gold leaf.",
-        weight="2 kg",
-        svg=cake_illustration("#2A1D12", "#3B2A22", "#4A3527", "#C89B3C", "drip"),
+        photo="happy_birthday",
+        title="A Birthday to Remember",
+        desc="A hand-sculpted fondant topper brings the birthday message to life, finished with piped blue rosettes and a hand-lettered plaque.",
+        occasion="Birthday",
     ),
     dict(
-        title="Sunshine &amp; Citrus",
-        desc="A sun-bright layered cake in marigold and coral, dressed with candied orange, fresh citrus slices, and a wreath of gold leaf.",
-        weight="1.5 kg",
-        svg=cake_illustration("#E1704A", "#F0B94A", "#F5D485", "#C89B3C", "citrus"),
+        photo="jai_guru_ji",
+        title="Roses for Guru Ji",
+        desc="Delicate piped pink roses and gold leaf detailing, finished with a hand-lettered message band.",
+        occasion="Birthday",
+    ),
+    dict(
+        photo="photo_01",
+        title="A BLACKPINK Birthday",
+        desc="A BLACKPINK-themed cake with a printed edible topper, piped hearts on skewers, and hand-lettered fondant lettering.",
+        occasion="Birthday",
+    ),
+    dict(
+        photo="welcome",
+        title="A Warm Welcome",
+        desc="A hand-piped rosette wreath in blush and sky blue, finished with a mirrored gold Welcome topper.",
+        occasion="Celebration",
+    ),
+    dict(
+        photo="welcome_arjun",
+        title="Welcome, Baby Arjun",
+        desc="Piped blue stars and tiny fondant footprints welcome the newest arrival, finished with a gold mirrored topper.",
+        occasion="Welcome Baby",
     ),
 ]
 
 def photocard(item):
+    photo_b64 = load_photo(item["photo"])
+    alt = html.escape(item["title"] + " — " + item["desc"])
     return f"""
         <article class="photocard">
-          <div class="photocard-img">{item['svg']}</div>
+          <div class="photocard-img"><img src="data:image/webp;base64,{photo_b64}" alt="{alt}" loading="lazy" width="640" height="640"></div>
           <h3>{item['title']}</h3>
           <p class="photocard-desc">{item['desc']}</p>
           <div class="photocard-divider"></div>
-          <div class="photocard-foot"><span>Minimum Weight</span><strong>{item['weight']}</strong></div>
+          <div class="photocard-foot"><span>Occasion</span><strong>{item['occasion']}</strong></div>
         </article>"""
 
 GALLERY_HTML = "\n".join(photocard(item) for item in GALLERY)
@@ -525,8 +505,9 @@ a:focus-visible, button:focus-visible {{
   overflow: hidden;
   aspect-ratio: 1 / 0.94;
   margin-bottom: 16px;
+  background: var(--paper-alt);
 }}
-.photocard-img svg {{ width: 100%; height: 100%; display: block; }}
+.photocard-img img {{ width: 100%; height: 100%; object-fit: cover; display: block; }}
 .photocard h3 {{
   font-family: var(--font-display);
   font-weight: 600;
@@ -558,7 +539,6 @@ a:focus-visible, button:focus-visible {{
 .photocard-foot strong {{
   font-weight: 600;
   color: var(--jam-deep);
-  font-variant-numeric: tabular-nums;
 }}
 
 @media (max-width: 900px) {{

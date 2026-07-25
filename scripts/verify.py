@@ -11,7 +11,7 @@ Checks:
   - every <script> block is syntactically valid JS (via `node --check`)
   - no leftover __..._JS__ template placeholders
   - expected content structure: 5 categories, 50 <tr> (45 data rows + 5
-    header rows)
+    header rows), 7 gallery photocards each with an embedded WebP photo
 """
 import hashlib
 import re
@@ -27,6 +27,7 @@ SOURCES_MD = VENDOR_DIR / "SOURCES.md"
 
 EXPECTED_CATEGORIES = 5
 EXPECTED_TR = 50
+EXPECTED_PHOTOCARDS = 7
 
 
 def fail(message):
@@ -81,6 +82,16 @@ def check_html_structure():
     if tr_count != EXPECTED_TR:
         fail(f"expected {EXPECTED_TR} <tr> elements, found {tr_count}")
     ok(f"{tr_count} table rows present")
+
+    photocard_count = html.count('class="photocard"')
+    if photocard_count != EXPECTED_PHOTOCARDS:
+        fail(f"expected {EXPECTED_PHOTOCARDS} gallery photocards, found {photocard_count}")
+    ok(f"{photocard_count} gallery photocards present")
+
+    img_count = len(re.findall(r'<img src="data:image/webp;base64,', html))
+    if img_count != EXPECTED_PHOTOCARDS:
+        fail(f"expected {EXPECTED_PHOTOCARDS} embedded gallery photos, found {img_count}")
+    ok(f"{img_count} gallery photos embedded as WebP data URIs")
 
 
 def check_inline_scripts_parse():

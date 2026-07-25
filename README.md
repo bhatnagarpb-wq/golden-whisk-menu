@@ -13,7 +13,11 @@ a stand-in while the full site is being built.
   family/weight each one is),
 - vendored copies of GSAP, ScrollTrigger, and ScrollToPlugin in
   `build/vendor/` (also documented in `SOURCES.md`, with recorded SHA-256
-  checksums).
+  checksums),
+- gallery photos in `build/assets/photos/` (base64 WebP, cropped/
+  compressed from the originals kept in `build/assets/photos/originals/`
+  — see [`build/assets/photos/README.md`](build/assets/photos/README.md)
+  for the exact pipeline).
 
 Everything is inlined into one self-contained HTML file — no external
 requests, no build-time network dependency, no CDN to go down or get
