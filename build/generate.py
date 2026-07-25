@@ -79,6 +79,99 @@ PIECE = [
     ("Honey-nut Crunch Cupcakes", 80),
 ]
 
+# ---- custom-cake gallery: a few illustrated highlights, shown below the
+# masthead intro. Not from the price lists above — these are one-off
+# custom orders, so no fixed per-kg price, just a minimum weight. ----
+
+def cake_illustration(backdrop, tier1, tier2, accent, motif):
+    """A simple flat-shape two-tier cake, in the same hand-drawn-icon style
+    as the rest of the site's SVGs (no photography). `motif` picks the
+    small decorative accent: star (mermaid), rose (floral), drip
+    (chocolate), or citrus (sunshine)."""
+    if motif == "star":
+        deco = f"""
+        <path d="M225 96 L232 116 L253 116 L236 129 L242 149 L225 137 L208 149 L214 129 L197 116 L218 116 Z" fill="{accent}"/>
+        <path d="M100 150 C92 140 92 158 100 168 C108 158 108 140 100 150 Z" fill="{accent}" transform="rotate(20 100 158)"/>"""
+    elif motif == "rose":
+        deco = f"""
+        <circle cx="222" cy="108" r="16" fill="none" stroke="{accent}" stroke-width="2.4"/>
+        <circle cx="222" cy="108" r="10" fill="none" stroke="{accent}" stroke-width="2.2"/>
+        <circle cx="222" cy="108" r="4.5" fill="{accent}"/>
+        <circle cx="90" cy="150" r="10" fill="none" stroke="{accent}" stroke-width="2"/>
+        <circle cx="90" cy="150" r="4" fill="{accent}"/>"""
+    elif motif == "drip":
+        deco = f"""
+        <path d="M78 168 C78 182 92 182 92 168 C92 180 104 180 104 166 C104 180 116 180 116 170" fill="none" stroke="{accent}" stroke-width="5" stroke-linecap="round"/>
+        <path d="M150 106 C150 120 164 120 164 106 C164 118 176 118 176 104" fill="none" stroke="{accent}" stroke-width="5" stroke-linecap="round"/>"""
+    else:  # citrus
+        deco = f"""
+        <circle cx="222" cy="112" r="17" fill="{accent}" opacity=".9"/>
+        <g stroke="{backdrop}" stroke-width="1.6">
+          <line x1="222" y1="98" x2="222" y2="126"/>
+          <line x1="208" y1="112" x2="236" y2="112"/>
+          <line x1="212" y1="102" x2="232" y2="122"/>
+          <line x1="232" y1="102" x2="212" y2="122"/>
+        </g>"""
+
+    return f"""<svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true">
+      <rect width="300" height="300" fill="{backdrop}"/>
+      <ellipse cx="150" cy="248" rx="88" ry="10" fill="rgba(0,0,0,.18)"/>
+      <rect x="62" y="188" width="176" height="62" rx="16" fill="{tier1}"/>
+      <g fill="{backdrop}" opacity=".5">
+        <circle cx="78" cy="188" r="6"/><circle cx="102" cy="188" r="6"/><circle cx="126" cy="188" r="6"/>
+        <circle cx="150" cy="188" r="6"/><circle cx="174" cy="188" r="6"/><circle cx="198" cy="188" r="6"/><circle cx="222" cy="188" r="6"/>
+      </g>
+      <rect x="100" y="130" width="100" height="58" rx="14" fill="{tier2}"/>
+      <g fill="{backdrop}" opacity=".5">
+        <circle cx="112" cy="130" r="5.5"/><circle cx="132" cy="130" r="5.5"/><circle cx="152" cy="130" r="5.5"/>
+        <circle cx="172" cy="130" r="5.5"/><circle cx="190" cy="130" r="5.5"/>
+      </g>
+      {deco}
+      <g fill="#F3DFA0" opacity=".85">
+        <circle cx="60" cy="90" r="2.4"/><circle cx="245" cy="70" r="2"/><circle cx="255" cy="180" r="2.4"/>
+        <circle cx="45" cy="200" r="2"/><circle cx="180" cy="60" r="2.2"/>
+      </g>
+    </svg>"""
+
+GALLERY = [
+    dict(
+        title="Wishes Made of Sugar &amp; Sea",
+        desc="A whimsical two-tiered mermaid masterpiece sculpted in soft pastel lilac, adorned with golden starfishes, pearl accents, and custom hand-crafted waves.",
+        weight="2 kg",
+        svg=cake_illustration("#3E6B62", "#C9A8DE", "#DCC3EA", "#C89B3C", "star"),
+    ),
+    dict(
+        title="Petals &amp; Pistachio",
+        desc="A blush pink celebration cake finished with hand-piped sugar roses, a dusting of crushed pistachio, and delicate gold leaf detailing.",
+        weight="1.5 kg",
+        svg=cake_illustration("#7C8B6F", "#F1C6C9", "#F7DEDF", "#C89B3C", "rose"),
+    ),
+    dict(
+        title="Midnight &amp; Gold",
+        desc="Rich dark chocolate ganache cascades over a matte black base, finished with a molten gold drip and scattered edible gold leaf.",
+        weight="2 kg",
+        svg=cake_illustration("#2A1D12", "#3B2A22", "#4A3527", "#C89B3C", "drip"),
+    ),
+    dict(
+        title="Sunshine &amp; Citrus",
+        desc="A sun-bright layered cake in marigold and coral, dressed with candied orange, fresh citrus slices, and a wreath of gold leaf.",
+        weight="1.5 kg",
+        svg=cake_illustration("#E1704A", "#F0B94A", "#F5D485", "#C89B3C", "citrus"),
+    ),
+]
+
+def photocard(item):
+    return f"""
+        <article class="photocard">
+          <div class="photocard-img">{item['svg']}</div>
+          <h3>{item['title']}</h3>
+          <p class="photocard-desc">{item['desc']}</p>
+          <div class="photocard-divider"></div>
+          <div class="photocard-foot"><span>Minimum Weight</span><strong>{item['weight']}</strong></div>
+        </article>"""
+
+GALLERY_HTML = "\n".join(photocard(item) for item in GALLERY)
+
 def cell(price):
     return money(price) if price is not None else '<span class="dash">—</span>'
 
@@ -385,6 +478,97 @@ a:focus-visible, button:focus-visible {{
   border-color: var(--gold);
 }}
 
+/* ============ custom-cake gallery ============ */
+/* Breaks out to a wider column than the 720px reading width, same trick
+   as .jump — four photocards side by side need more room than a single
+   paragraph does. */
+.gallery {{
+  margin: 0 calc(50% - 50vw) 56px;
+  padding: 0 22px;
+}}
+.gallery-inner {{
+  max-width: 1120px;
+  margin: 0 auto;
+}}
+.gallery-intro {{
+  max-width: 560px;
+  margin: 0 auto 36px;
+  text-align: center;
+}}
+.gallery-heading {{
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.6rem, 3vw, 2.1rem);
+  color: var(--cream);
+  text-wrap: balance;
+  margin: 0 0 .5em;
+}}
+.gallery-sub {{
+  font-size: .95rem;
+  color: var(--cream-60);
+  margin: 0;
+}}
+
+.photocard-grid {{
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 22px;
+}}
+.photocard {{
+  background: var(--paper);
+  border-radius: 20px;
+  padding: 12px 12px 20px;
+  box-shadow: 0 18px 32px -18px rgba(0,0,0,.55);
+}}
+.photocard-img {{
+  border-radius: 14px;
+  overflow: hidden;
+  aspect-ratio: 1 / 0.94;
+  margin-bottom: 16px;
+}}
+.photocard-img svg {{ width: 100%; height: 100%; display: block; }}
+.photocard h3 {{
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.14rem;
+  line-height: 1.22;
+  color: var(--ink);
+  margin: 0 6px 10px;
+  text-wrap: balance;
+}}
+.photocard-desc {{
+  font-size: .84rem;
+  line-height: 1.55;
+  color: var(--ink-70);
+  margin: 0 6px 16px;
+}}
+.photocard-divider {{
+  height: 1px;
+  background: var(--line);
+  margin: 0 6px 12px;
+}}
+.photocard-foot {{
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin: 0 6px;
+  font-size: .78rem;
+}}
+.photocard-foot span {{ color: var(--ink-45); }}
+.photocard-foot strong {{
+  font-weight: 600;
+  color: var(--jam-deep);
+  font-variant-numeric: tabular-nums;
+}}
+
+@media (max-width: 900px) {{
+  .photocard-grid {{ grid-template-columns: repeat(2, 1fr); }}
+}}
+@media (max-width: 560px) {{
+  .gallery {{ padding: 0 18px; margin-bottom: 44px; }}
+  .photocard-grid {{ grid-template-columns: 1fr; gap: 18px; }}
+}}
+
 /* ============ category cards ============ */
 .category {{
   margin-bottom: 30px;
@@ -631,6 +815,19 @@ td.price {{
     <p class="intro">Every cake below is mixed and iced only after you order it — nothing sits ready on a shelf. Two sizes on most flavours: a 1&nbsp;kg cake serves about 12–15, a 650&nbsp;g serves about 8–10. Message us on WhatsApp with your flavour, size, and the date you need it.</p>
   </header>
 
+  <section class="gallery">
+    <div class="gallery-inner">
+      <div class="gallery-intro">
+        <p class="eyebrow">Custom Cakes</p>
+        <h2 class="gallery-heading">A Few Recent Favourites</h2>
+        <p class="gallery-sub">Every custom cake starts with a conversation, not a catalogue — this is a small sample of what's come out of the oven lately.</p>
+      </div>
+      <div class="photocard-grid">
+{gallery}
+      </div>
+    </div>
+  </section>
+
   <nav class="jump" aria-label="Jump to a category">
     <a href="#fruit">Fruit</a>
     <a href="#chocolate">Chocolate</a>
@@ -662,7 +859,7 @@ td.price {{
 <script>__ANIMATION_JS__</script>
 """
 
-html_out = TEMPLATE.format(categories=CATEGORIES_HTML, **FONTS)
+html_out = TEMPLATE.format(categories=CATEGORIES_HTML, gallery=GALLERY_HTML, **FONTS)
 
 # Inlined verbatim (not through .format()) so the thousands of literal { }
 # in the minified library source never collide with str.format() syntax.
@@ -684,11 +881,13 @@ animation_js = r"""
     intro: document.querySelector('.intro')
   };
   var cards = gsap.utils.toArray('.category');
+  var photocards = gsap.utils.toArray('.photocard');
 
   if (prefersReduced) {
     gsap.set([mastheadEls.mark, mastheadEls.eyebrow, mastheadEls.wordmark, mastheadEls.intro], { opacity: 1, y: 0 });
     gsap.set(mastheadEls.note, { opacity: 1, y: 0, rotate: -1.4 });
     gsap.set(cards, { opacity: 1, y: 0 });
+    gsap.set(photocards, { opacity: 1, y: 0 });
   } else {
     // ---- masthead entrance, orchestrated as one sequence ----
     gsap.timeline({ defaults: { ease: 'power3.out' } })
@@ -723,6 +922,17 @@ animation_js = r"""
         }
       );
     });
+
+    // ---- gallery photocards: same treatment, staggered within the grid ----
+    if (photocards.length) {
+      gsap.fromTo(photocards,
+        { opacity: 0, y: 30 },
+        {
+          opacity: 1, y: 0, duration: .7, ease: 'power3.out', stagger: .1,
+          scrollTrigger: { trigger: '.photocard-grid', start: 'top 88%', once: true }
+        }
+      );
+    }
   }
 
   // ---- jump nav: click to smooth-scroll to a section ----
