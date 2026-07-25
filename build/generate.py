@@ -491,8 +491,8 @@ a:focus-visible, button:focus-visible {{
 
 .photocard-grid {{
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 22px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
 }}
 .photocard {{
   background: var(--paper);
