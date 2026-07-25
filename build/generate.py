@@ -178,6 +178,30 @@ GALLERY = [
         desc="A pastel ombre cake with Stitch and Angel toppers, piped rosettes, and a hand-lettered name and age.",
         occasion="Birthday",
     ),
+    dict(
+        photo="anniversary_couple",
+        title="A 40th Anniversary Cake",
+        desc="A two-tier white cake with pink buttercream ruffle roses, a gold &ldquo;Mrs&rdquo; topper, hand-sculpted figures of the couple, and gold-lettered &ldquo;Happy 40th Anniversary.&rdquo;",
+        occasion="Anniversary",
+    ),
+    dict(
+        photo="puneet_drycake",
+        title="A Two-Tier Dry Cake for Puneet",
+        desc="A two-tier fruit dry cake topped with almonds, glacé cherries, and candied peel, finished with fresh blue and cream roses, a gilded ball, and a gold glitter topper.",
+        occasion="Birthday",
+    ),
+    dict(
+        photo="shivanshi_butterfly",
+        title="A Butterfly Birthday for Shivanshi",
+        desc="A two-tier dark chocolate cake with bronze-gold buttercream rosettes, purple-and-gold butterfly toppers, and edible pearls, finished with a piped name plaque.",
+        occasion="Birthday",
+    ),
+    dict(
+        photo="cupcake_bouquet",
+        title="A Cupcake Bouquet",
+        desc="Seven cupcakes wrapped like a bouquet, with alternating sky-blue and white swirled buttercream and sprigs of baby&rsquo;s breath.",
+        occasion="Gift",
+    ),
 ]
 
 def photocard(item):
@@ -998,7 +1022,11 @@ td.price {{
   max-width: 48ch;
   margin: 0 auto .9em;
 }}
-.signoff {{
+/* .board-footer .signoff, not just .signoff: ".board-footer p" above is
+   more specific than a bare class selector, so it was winning the
+   cascade and silently overriding this back to Karla — the footer
+   sign-off was rendering in the wrong font despite this rule existing. */
+.board-footer .signoff {{
   font-family: var(--font-script);
   font-size: 1.4rem;
   color: var(--gold);
@@ -1339,9 +1367,10 @@ HOME_HERO_HTML = """
         <span class="line" data-line>patience, and a <em>little</em> chaos.</span>
       </h1>
       <p class="hero-sub" data-reveal>
-        The Golden Whisk is a one-woman, one-oven bakery taking orders for customised
-        celebration cakes, dry cakes, cookies, and breads. Nothing sits ready on a shelf —
-        every single bake starts only after your order comes in.
+        The Golden Whisk is a one-woman, one-oven bakery serving the Chandigarh Tricity,
+        taking orders for customised celebration cakes, dry cakes, cookies, and breads.
+        Nothing sits ready on a shelf — every single bake starts only after your order
+        comes in.
       </p>
       <div class="hero-actions" data-reveal>
         <a href="menu.html" class="btn">See the Menu</a>

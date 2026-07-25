@@ -12,7 +12,7 @@ Checks (per page, plus site-wide):
   - no leftover __..._JS__ or {page_title}-style template placeholders
   - both pages link to each other via .site-nav, with the correct one
     marked is-active
-  - index.html: 14 gallery photocards each with an embedded WebP photo,
+  - index.html: 18 gallery photocards each with an embedded WebP photo,
     and NO category/menu content (that moved to its own page)
   - menu.html: 5 categories, 50 <tr> (45 data rows + 5 header rows), and
     NO gallery content (that's the home page's job)
@@ -31,7 +31,7 @@ SOURCES_MD = VENDOR_DIR / "SOURCES.md"
 
 EXPECTED_CATEGORIES = 5
 EXPECTED_TR = 50
-EXPECTED_PHOTOCARDS = 14
+EXPECTED_PHOTOCARDS = 18
 
 
 def fail(message):
