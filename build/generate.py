@@ -1186,7 +1186,6 @@ def wp_nav(active):
       </a>
       <nav class="nav-links" aria-label="Primary">
         {link("index.html", "Home", "home")}
-        {link("menu.html", "Menu", "menu")}
       </nav>
       <a href="https://wa.me/919872347816" class="nav-cta">Order on WhatsApp</a>
       <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false">
@@ -1195,7 +1194,6 @@ def wp_nav(active):
     </div>
     <div class="nav-mobile" id="navMobile">
       {link("index.html", "Home", "home")}
-      {link("menu.html", "Menu", "menu")}
       <a href="https://wa.me/919872347816" class="nav-cta">Order on WhatsApp</a>
     </div>
   </header>"""
@@ -1373,8 +1371,7 @@ HOME_HERO_HTML = """
         comes in.
       </p>
       <div class="hero-actions" data-reveal>
-        <a href="menu.html" class="btn">See the Menu</a>
-        <a href="https://wa.me/919872347816" class="btn-ghost">Order for This Weekend</a>
+        <a href="https://wa.me/919872347816" class="btn">Order for This Weekend</a>
       </div>
       <div class="hero-stats" data-reveal>
         <div><strong>2019</strong><span>Baking since</span></div>

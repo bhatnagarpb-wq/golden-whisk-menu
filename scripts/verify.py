@@ -10,8 +10,8 @@ Checks (per page, plus site-wide):
   - required meta tags are present (viewport, charset)
   - every <script> block is syntactically valid JS (via `node --check`)
   - no leftover __..._JS__ or {page_title}-style template placeholders
-  - both pages link to each other via .site-nav, with the correct one
-    marked is-active
+  - both pages have the top nav with a Home link (Menu is deliberately
+    unlinked for now — see check_nav)
   - index.html: 18 gallery photocards each with an embedded WebP photo,
     and NO category/menu content (that moved to its own page)
   - menu.html: 5 categories, 50 <tr> (45 data rows + 5 header rows), and
@@ -76,17 +76,15 @@ def check_common(name, html):
         fail(f"{name}: missing <meta charset=\"utf-8\">")
 
 
-def check_nav(name, html, active_href):
+def check_nav(name, html):
+    # The Menu link is deliberately hidden from the nav for now (menu.html
+    # still builds and is reachable by direct URL, just not linked from
+    # anywhere on the site) — so this only checks for the Home link.
     if 'class="nav" id="nav"' not in html:
         fail(f"{name}: missing the top nav")
     if not re.search(r'<a href="index\.html"[^>]*>Home</a>', html):
         fail(f"{name}: nav is missing a Home link")
-    if not re.search(r'<a href="menu\.html"[^>]*>Menu</a>', html):
-        fail(f"{name}: nav is missing a Menu link")
-    active_pattern = rf'<a href="{re.escape(active_href)}" class="is-current">'
-    if not re.search(active_pattern, html):
-        fail(f"{name}: nav does not mark {active_href} as is-current")
-    ok(f"{name}: nav present and pointing at {active_href} as active")
+    ok(f"{name}: nav present with a Home link")
 
 
 def check_home(html):
@@ -105,10 +103,6 @@ def check_home(html):
     if 'class="jump"' in html:
         fail("index.html: found the category jump nav — that should only be on menu.html now")
     ok("index.html: no menu/category content leaked in from menu.html")
-
-    if 'href="menu.html"' not in html:
-        fail("index.html: missing a link to menu.html (the \"View Full Menu\" CTA)")
-    ok("index.html: links to the full menu")
 
 
 def check_menu(html):
@@ -175,8 +169,8 @@ def main():
 
     check_common("index.html", home_html)
     check_common("menu.html", menu_html)
-    check_nav("index.html", home_html, "index.html")
-    check_nav("menu.html", menu_html, "menu.html")
+    check_nav("index.html", home_html)
+    check_nav("menu.html", menu_html)
     check_home(home_html)
     check_menu(menu_html)
     check_inline_scripts_parse("index.html", home_html)
