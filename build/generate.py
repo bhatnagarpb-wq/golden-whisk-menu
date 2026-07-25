@@ -1174,26 +1174,25 @@ WHISK_MARK_SVG = """<svg class="whisk-mark" viewBox="0 0 40 40" fill="none" xmln
 # site's actual two pages plus a WhatsApp CTA (the theme's nav links to
 # six sections of one long homepage that don't exist on this stand-in).
 def wp_nav(active):
-    def link(href, label, key):
-        cls = ' class="is-current"' if key == active else ""
-        return f'<a href="{href}"{cls}>{label}</a>'
+    # Home isn't linked when it's the current page — no point pointing at
+    # yourself — so on the Home page (the only page still linked from
+    # anywhere right now) nav-links ends up empty and is dropped entirely.
+    home_link = '' if active == 'home' else '<a href="index.html">Home</a>'
+    nav_links = f'\n      <nav class="nav-links" aria-label="Primary">\n        {home_link}\n      </nav>' if home_link else ''
+    nav_mobile_link = f'\n      {home_link}' if home_link else ''
     return f"""
   <header class="nav" id="nav">
     <div class="nav-inner">
       <a href="index.html" class="nav-logo" aria-label="The Golden Whisk home">
         {WHISK_MARK_SVG}
         <span>The Golden&nbsp;Whisk</span>
-      </a>
-      <nav class="nav-links" aria-label="Primary">
-        {link("index.html", "Home", "home")}
-      </nav>
+      </a>{nav_links}
       <a href="https://wa.me/919872347816" class="nav-cta">Order on WhatsApp</a>
       <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false">
         <span></span><span></span><span></span>
       </button>
     </div>
-    <div class="nav-mobile" id="navMobile">
-      {link("index.html", "Home", "home")}
+    <div class="nav-mobile" id="navMobile">{nav_mobile_link}
       <a href="https://wa.me/919872347816" class="nav-cta">Order on WhatsApp</a>
     </div>
   </header>"""

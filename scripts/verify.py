@@ -76,15 +76,20 @@ def check_common(name, html):
         fail(f"{name}: missing <meta charset=\"utf-8\">")
 
 
-def check_nav(name, html):
+def check_nav(name, html, expect_home_link):
     # The Menu link is deliberately hidden from the nav for now (menu.html
     # still builds and is reachable by direct URL, just not linked from
-    # anywhere on the site) — so this only checks for the Home link.
+    # anywhere on the site). The nav also never links to the page you're
+    # already on, so index.html has no Home link — only menu.html does,
+    # as a way back.
     if 'class="nav" id="nav"' not in html:
         fail(f"{name}: missing the top nav")
-    if not re.search(r'<a href="index\.html"[^>]*>Home</a>', html):
+    has_home_link = bool(re.search(r'<a href="index\.html"[^>]*>Home</a>', html))
+    if expect_home_link and not has_home_link:
         fail(f"{name}: nav is missing a Home link")
-    ok(f"{name}: nav present with a Home link")
+    if not expect_home_link and has_home_link:
+        fail(f"{name}: nav has a self-referential Home link, expected none")
+    ok(f"{name}: nav present" + (" with a Home link" if expect_home_link else ", no self-link to Home"))
 
 
 def check_home(html):
@@ -169,8 +174,8 @@ def main():
 
     check_common("index.html", home_html)
     check_common("menu.html", menu_html)
-    check_nav("index.html", home_html)
-    check_nav("menu.html", menu_html)
+    check_nav("index.html", home_html, expect_home_link=False)
+    check_nav("menu.html", menu_html, expect_home_link=True)
     check_home(home_html)
     check_menu(menu_html)
     check_inline_scripts_parse("index.html", home_html)
