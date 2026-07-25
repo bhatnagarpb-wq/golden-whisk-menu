@@ -21,7 +21,7 @@ def load_photo(key):
     build/assets/photos/README.md for how these were optimized)."""
     return (PHOTOS_DIR / f"{key}.b64").read_text().strip()
 
-FONTS = {k: load(k) for k in ["fraunces", "inter400", "inter600", "dmmono400", "dmmono500", "caveat", "dmseriftext"]}
+FONTS = {k: load(k) for k in ["fraunces", "inter400", "inter600", "karla400", "karla600", "spacemono400", "spacemono700", "caveat", "dmseriftext"]}
 
 def money(n):
     return "₹{:,}".format(n)
@@ -319,21 +319,37 @@ TEMPLATE = """<!doctype html>
   src: url(data:font/woff2;base64,{inter600}) format('woff2');
 }}
 @font-face {{
+  /* Space Mono, matching the main WordPress theme's utility font exactly
+     (not DM Mono, which the header/masthead used before this page adopted
+     the main site's theme — the header itself is untouched, see .wordmark
+     and the base .eyebrow/.intro rules below, which still resolve through
+     --font-body/DM Serif Text as before). */
   font-family: 'GW Mono';
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url(data:font/woff2;base64,{dmmono400}) format('woff2');
+  src: url(data:font/woff2;base64,{spacemono400}) format('woff2');
 }}
 @font-face {{
-  /* DM Mono tops out at 500 (Medium) — there is no 700/bold cut, so this
-     stands in for "bold" mono text rather than triggering the browser's
-     synthetic/faux bold on a face that was never drawn that way. */
   font-family: 'GW Mono';
   font-style: normal;
-  font-weight: 500;
+  font-weight: 700;
   font-display: swap;
-  src: url(data:font/woff2;base64,{dmmono500}) format('woff2');
+  src: url(data:font/woff2;base64,{spacemono700}) format('woff2');
+}}
+@font-face {{
+  font-family: 'GW Karla';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(data:font/woff2;base64,{karla400}) format('woff2');
+}}
+@font-face {{
+  font-family: 'GW Karla';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url(data:font/woff2;base64,{karla600}) format('woff2');
 }}
 @font-face {{
   font-family: 'GW Caveat';
@@ -361,7 +377,11 @@ TEMPLATE = """<!doctype html>
   --line:         rgba(43,27,20,.14);
 
   --font-display: 'GW Fraunces', Georgia, serif;
+  /* --font-body (Inter) is kept only for the header/masthead, which stays
+     exactly as it was. Everything else on the page uses --font-karla,
+     matching the main WordPress theme's actual body font. */
   --font-body:    'GW Inter', -apple-system, sans-serif;
+  --font-karla:   'GW Karla', -apple-system, sans-serif;
   --font-mono:    'GW Mono', 'Courier New', monospace;
   --font-script:  'GW Caveat', cursive;
 
@@ -543,8 +563,8 @@ a:focus-visible, button:focus-visible {{
   border-bottom: 1px solid rgba(251,243,231,.08);
 }}
 .jump a {{
-  font-family: var(--font-body);
-  font-weight: 600;
+  font-family: var(--font-karla);
+  font-weight: 700;
   font-size: .68rem;
   letter-spacing: .08em;
   text-transform: uppercase;
@@ -579,6 +599,14 @@ a:focus-visible, button:focus-visible {{
   margin: 0 auto 36px;
   text-align: center;
 }}
+/* The masthead's .eyebrow stays Inter (header, unchanged) — this section
+   isn't the header, so its eyebrow matches the main theme's actual
+   pattern instead, where eyebrows use the mono face, not the body one. */
+.gallery-intro .eyebrow {{
+  font-family: var(--font-mono);
+  font-weight: 400;
+  letter-spacing: .14em;
+}}
 .gallery-heading {{
   font-family: var(--font-display);
   font-weight: 600;
@@ -588,6 +616,7 @@ a:focus-visible, button:focus-visible {{
   margin: 0 0 .5em;
 }}
 .gallery-sub {{
+  font-family: var(--font-karla);
   font-size: .95rem;
   color: var(--cream-60);
   margin: 0;
@@ -622,6 +651,7 @@ a:focus-visible, button:focus-visible {{
   text-wrap: balance;
 }}
 .photocard-desc {{
+  font-family: var(--font-karla);
   font-size: .84rem;
   line-height: 1.55;
   color: var(--ink-70);
@@ -633,6 +663,7 @@ a:focus-visible, button:focus-visible {{
   margin: 0 6px 12px;
 }}
 .photocard-foot {{
+  font-family: var(--font-karla);
   display: flex;
   justify-content: space-between;
   align-items: baseline;
@@ -704,6 +735,7 @@ a:focus-visible, button:focus-visible {{
   white-space: nowrap;
 }}
 .card-note {{
+  font-family: var(--font-karla);
   padding-left: 12px;
   font-size: .82rem;
   color: var(--ink-45);
@@ -733,7 +765,7 @@ tbody td {{
 }}
 tbody tr:last-child td {{ border-bottom: none; }}
 td.name {{
-  font-family: var(--font-body);
+  font-family: var(--font-karla);
   font-weight: 600;
   color: var(--ink);
   padding-left: 0;
@@ -741,14 +773,14 @@ td.name {{
 }}
 td.price {{
   font-family: var(--font-mono);
-  font-weight: 500;
+  font-weight: 700;
   color: var(--jam-deep);
   text-align: right;
   font-variant-numeric: tabular-nums;
 }}
 .table-2col td.price {{ color: var(--jam-deep); }}
 .unit {{
-  font-family: var(--font-mono);
+  font-family: var(--font-karla);
   font-weight: 400;
   font-size: .72rem;
   color: var(--ink-45);
@@ -762,6 +794,7 @@ td.price {{
   border-top: 1px solid rgba(251,243,231,.14);
 }}
 .board-footer p {{
+  font-family: var(--font-karla);
   font-size: .82rem;
   color: var(--cream-40);
   max-width: 48ch;
@@ -774,7 +807,7 @@ td.price {{
   transform: rotate(-1deg);
 }}
 .contact {{
-  font-family: var(--font-body);
+  font-family: var(--font-karla);
   font-size: .8rem;
   letter-spacing: .01em;
   color: var(--cream-60) !important;
@@ -795,6 +828,7 @@ td.price {{
   display: inline-block;
   margin-top: 22px;
   font-family: var(--font-mono);
+  font-weight: 700;
   font-size: .68rem;
   letter-spacing: .1em;
   text-transform: uppercase;

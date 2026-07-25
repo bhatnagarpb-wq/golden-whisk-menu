@@ -28,6 +28,8 @@ corresponds to.
 | `dmseriftext.b64` | DM Serif Text | 400 |
 | `inter400.b64` | Inter | 400 |
 | `inter600.b64` | Inter | 600 |
-| `dmmono400.b64` | DM Mono | 400 |
-| `dmmono500.b64` | DM Mono | 500 |
+| `karla400.b64` | Karla | 400 |
+| `karla600.b64` | Karla | 600 |
+| `spacemono400.b64` | Space Mono | 400 |
+| `spacemono700.b64` | Space Mono | 700 |
 | `caveat.b64` | Caveat | 600 |

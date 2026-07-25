@@ -18,7 +18,11 @@ by a persistent top nav.
   for the exact pipeline; renders into index.html),
 - font subsets in `build/assets/fonts/` (base64 WOFF2, one per typeface —
   see [`build/vendor/SOURCES.md`](build/vendor/SOURCES.md) for which
-  family/weight each one is),
+  family/weight each one is; the type system matches the main WordPress
+  theme's — Fraunces for display headings, Karla for body copy, Space
+  Mono for labels/prices/eyebrows, Caveat for the handwritten aside — with
+  DM Serif Text and Inter kept only on the site-nav and masthead, unchanged
+  from before),
 - vendored copies of GSAP, ScrollTrigger, and ScrollToPlugin in
   `build/vendor/` (also documented in `SOURCES.md`, with recorded SHA-256
   checksums).
