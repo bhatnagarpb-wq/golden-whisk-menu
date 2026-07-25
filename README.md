@@ -1,39 +1,65 @@
 # The Golden Whisk — Cake Board
 
-A single-page, made-to-order cake menu for The Golden Whisk, published as
-a stand-in while the full site is being built.
+A made-to-order cake site for The Golden Whisk, published as a stand-in
+while the full site is being built. Two pages: Home (`index.html` — the
+main WordPress site's actual hero, brought over verbatim, plus the
+custom-cake gallery) and Menu (`menu.html` — flavours and prices), linked
+by a shared top nav also brought over from the WordPress theme (adapted
+to this site's two real pages instead of the six section anchors the
+full homepage links to).
 
 ## How it's built
 
-`build/generate.py` assembles `dist/index.html` from:
+`build/generate.py` assembles **both** `dist/index.html` and
+`dist/menu.html` from:
 
-- the flavour/category/price data defined at the top of the script,
+- the flavour/category/price data defined at the top of the script
+  (renders into menu.html),
+- gallery photos in `build/assets/photos/` (base64 WebP, cropped/
+  compressed from the originals kept in `build/assets/photos/originals/`
+  — see [`build/assets/photos/README.md`](build/assets/photos/README.md)
+  for the exact pipeline; renders into index.html),
 - font subsets in `build/assets/fonts/` (base64 WOFF2, one per typeface —
   see [`build/vendor/SOURCES.md`](build/vendor/SOURCES.md) for which
-  family/weight each one is),
+  family/weight each one is; the type system matches the main WordPress
+  theme's — Fraunces for display headings, Karla for body copy, Space
+  Mono for labels/prices/eyebrows, Caveat for the handwritten aside — with
+  DM Serif Text and Inter kept only on the site-nav and masthead, unchanged
+  from before). The colour scheme follows suit: a light paper page
+  (`--cream`/`--paper`) rather than the original all-dark board, with the
+  dark `--board` background kept only as its own accent band behind the
+  masthead and the closing footer card — the site-nav and masthead are
+  otherwise pixel-for-pixel what they were before this pass,
 - vendored copies of GSAP, ScrollTrigger, and ScrollToPlugin in
   `build/vendor/` (also documented in `SOURCES.md`, with recorded SHA-256
   checksums).
 
-Everything is inlined into one self-contained HTML file — no external
+Each page is inlined into one self-contained HTML file — no external
 requests, no build-time network dependency, no CDN to go down or get
 compromised. Fonts and libraries are committed as static files rather
 than fetched on every build specifically so the output is reproducible
 and doesn't depend on a third party being reachable or trustworthy at
-build time.
+build time. The tradeoff: since both pages inline their own copy of the
+fonts/JS independently (there's no shared external file to cache), a
+visitor navigating from Home to Menu re-downloads that ~450KB rather than
+reusing it. Acceptable for now; worth revisiting with extracted shared
+assets if a third page joins.
 
 To build and stage locally:
 
 ```sh
-python3 build/generate.py         # writes dist/index.html
-python3 scripts/verify.py         # sanity-checks the output
-cd dist && python3 -m http.server 8420   # stage it at http://localhost:8420/
+python3 build/generate.py         # writes dist/index.html and dist/menu.html
+python3 scripts/verify.py         # sanity-checks both pages
+cd dist && python3 -m http.server 8420   # stage at http://localhost:8420/ and /menu.html
 ```
 
 `scripts/verify.py` re-checks the vendored files' checksums, confirms the
 required meta tags are present, validates every inline `<script>` block
-with `node --check`, and asserts the expected page structure (5
-categories, 45 menu items). It's the same gate CI runs before deploying.
+with `node --check` on both pages, checks the top nav links both pages
+together with the right one marked active, and asserts each page's
+content stays on its own page (5 categories / 45 menu items only on
+menu.html, the photo gallery only on index.html). It's the same gate CI
+runs before deploying.
 
 **Always open the local staging server and actually look at the change**
 before pushing a branch — `verify.py` catches structural breakage, not
@@ -50,8 +76,26 @@ Flavours, categories, and prices live in the Python lists near the top of
 within each category are sorted alphabetically at build time, so add
 entries in any order.
 
-Copy — the hero text, footer, contact line — lives in the `TEMPLATE`
-string further down the same file.
+## Editing the gallery
+
+The `GALLERY` list (same file) holds the Home page's photocards — each
+entry is `photo` (the key into `build/assets/photos/*.b64`), `title`,
+`desc` (describe only what's visibly decorated — these are real delivered
+cakes, not menu items, so don't invent flavour/ingredient claims), and
+`occasion`. To add a new one: drop the original photo in
+`build/assets/photos/originals/`, run it through the pipeline in
+`build/assets/photos/README.md`, then add an entry here.
+
+## Editing shared copy
+
+The masthead intro differs per page (`HOME_INTRO` / `MENU_INTRO`), as does
+the footer's price disclaimer (`MENU_FOOTER_NOTE`, home page doesn't get
+one) and the page `<title>`/meta description (`HOME_TITLE` /
+`HOME_DESCRIPTION` / `MENU_TITLE` / `MENU_DESCRIPTION`) — all defined
+together in `build/generate.py`, above where the two pages get rendered.
+Everything else (masthead structure, footer signoff/contact, the CSS) is
+shared via `masthead_html()` / `footer_html()` / the `TEMPLATE` string
+further down the same file.
 
 ## Publishing workflow
 
