@@ -22,7 +22,11 @@ by a persistent top nav.
   theme's — Fraunces for display headings, Karla for body copy, Space
   Mono for labels/prices/eyebrows, Caveat for the handwritten aside — with
   DM Serif Text and Inter kept only on the site-nav and masthead, unchanged
-  from before),
+  from before). The colour scheme follows suit: a light paper page
+  (`--cream`/`--paper`) rather than the original all-dark board, with the
+  dark `--board` background kept only as its own accent band behind the
+  masthead and the closing footer card — the site-nav and masthead are
+  otherwise pixel-for-pixel what they were before this pass,
 - vendored copies of GSAP, ScrollTrigger, and ScrollToPlugin in
   `build/vendor/` (also documented in `SOURCES.md`, with recorded SHA-256
   checksums).

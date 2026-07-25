@@ -362,7 +362,7 @@ TEMPLATE = """<!doctype html>
 :root{{
   --board:        #241610;
   --board-deep:   #180F0A;
-  --paper:        #FBF3E7;
+  --paper:        #FFFDF8;
   --paper-alt:    #F4E3BE;
   --ink:          #2B1B14;
   --ink-70:       rgba(43,27,20,.72);
@@ -387,7 +387,7 @@ TEMPLATE = """<!doctype html>
 
   --content-w: 720px;
   --nav-h: 54px;
-  color-scheme: dark;
+  color-scheme: light;
 }}
 
 *, *::before, *::after {{ box-sizing: border-box; }}
@@ -414,10 +414,8 @@ html {{
 
 body {{
   margin: 0;
-  background:
-    radial-gradient(ellipse 90% 60% at 50% -10%, rgba(200,155,60,.10), transparent 60%),
-    var(--board);
-  color: var(--cream);
+  background: var(--cream);
+  color: var(--ink);
   font-family: var(--font-body);
   font-size: 16px;
   line-height: 1.6;
@@ -497,9 +495,17 @@ a:focus-visible, button:focus-visible {{
 .btn:hover {{ background: #E0B356; transform: translateY(-1px); }}
 
 /* ============ masthead ============ */
+/* The rest of the page is now a light paper theme (matching the main
+   WordPress site), but the masthead itself is unchanged — it keeps the
+   exact dark backdrop the whole page used to have, now given its own
+   full-bleed background instead of inheriting it from <body>. */
 .masthead {{
   text-align: center;
-  padding: 72px 0 34px;
+  margin: 0 calc(50% - 50vw) 0;
+  padding: 72px 22px 34px;
+  background:
+    radial-gradient(ellipse 90% 60% at 50% -10%, rgba(200,155,60,.10), transparent 60%),
+    var(--board);
 }}
 .mark {{
   width: 46px; height: 46px;
@@ -557,10 +563,10 @@ a:focus-visible, button:focus-visible {{
   gap: 8px;
   margin: 0 calc(50% - 50vw) 30px;
   padding: 14px 22px;
-  background: rgba(24,15,10,.78);
+  background: rgba(251,243,231,.85);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(251,243,231,.08);
+  border-bottom: 1px solid var(--line);
 }}
 .jump a {{
   font-family: var(--font-karla);
@@ -569,8 +575,8 @@ a:focus-visible, button:focus-visible {{
   letter-spacing: .08em;
   text-transform: uppercase;
   text-decoration: none;
-  color: var(--cream-60);
-  border: 1px solid rgba(251,243,231,.22);
+  color: var(--ink-70);
+  border: 1px solid var(--line);
   border-radius: 100px;
   padding: 7px 14px;
   transition: border-color .2s ease, color .2s ease, background .2s ease;
@@ -611,14 +617,14 @@ a:focus-visible, button:focus-visible {{
   font-family: var(--font-display);
   font-weight: 600;
   font-size: clamp(1.6rem, 3vw, 2.1rem);
-  color: var(--cream);
+  color: var(--ink);
   text-wrap: balance;
   margin: 0 0 .5em;
 }}
 .gallery-sub {{
   font-family: var(--font-karla);
   font-size: .95rem;
-  color: var(--cream-60);
+  color: var(--ink-70);
   margin: 0;
 }}
 
@@ -788,10 +794,14 @@ td.price {{
 .dash {{ color: var(--ink-45); }}
 
 /* ============ footer ============ */
+/* A dark card echoing the masthead, so the sign-off still reads as a
+   bold closing note rather than fading into the light paper page. */
 .board-footer {{
   text-align: center;
-  padding-top: 36px;
-  border-top: 1px solid rgba(251,243,231,.14);
+  margin-top: 14px;
+  padding: 40px 24px 34px;
+  border-radius: 20px;
+  background: var(--board);
 }}
 .board-footer p {{
   font-family: var(--font-karla);
