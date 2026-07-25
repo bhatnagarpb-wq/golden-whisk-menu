@@ -136,6 +136,48 @@ GALLERY = [
         desc="Piped blue stars and tiny fondant footprints welcome the newest arrival, finished with a gold mirrored topper.",
         occasion="Welcome Baby",
     ),
+    dict(
+        photo="mermaid_birthday",
+        title="A Mermaid's Birthday Wish",
+        desc="A two-tier pink birthday cake with hand-sculpted mermaid tails, gold starfish, and a hand-lettered topper.",
+        occasion="Birthday",
+    ),
+    dict(
+        photo="glutenfree_boxed",
+        title="A Gluten-Free Chocolate Cake",
+        desc="A gluten-free chocolate cake finished with piped chocolate rosettes and a glittered gold topper.",
+        occasion="Birthday",
+    ),
+    dict(
+        photo="lotus_biscoff_drip",
+        title="A Lotus Biscoff Drip Cake",
+        desc="A caramel drip cake finished with crushed Biscoff crumble and a whole Lotus biscuit, hand-lettered on the base.",
+        occasion="Birthday",
+    ),
+    dict(
+        photo="glutenfree_drip",
+        title="A Tall Gluten-Free Chocolate Drip",
+        desc="A gluten-free chocolate cake finished with a dark ganache drip, piped rosettes, and a gold-lettered topper.",
+        occasion="Birthday",
+    ),
+    dict(
+        photo="fairy_princess",
+        title="A Fairy-Tale Birthday for Mehar",
+        desc="A pink butterfly-wing cake with a fairy, unicorn, and castle topper, finished with a hand-lettered name plaque.",
+        occasion="Birthday",
+    ),
+    dict(
+        photo="harry_potter",
+        title="A Harry Potter Birthday",
+        desc="A Harry Potter-themed cake with a hand-sculpted golden snitch, sorting hat, wand, and house scarf, finished with gold lettering.",
+        occasion="Birthday",
+    ),
+    dict(
+        photo="myra_stitch",
+        title="A Lilo &amp; Stitch Birthday for Myra",
+        desc="A pastel ombre cake with Stitch and Angel toppers, piped rosettes, and a hand-lettered name and age.",
+        occasion="Birthday",
+    ),
 ]
 
 def photocard(item):
@@ -244,7 +286,8 @@ CATEGORIES_HTML = "\n".join(sections)
 TEMPLATE = """<!doctype html>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>The Golden Whisk — Cake Board</title>
+<title>{page_title}</title>
+<meta name="description" content="{meta_description}" />
 <style>
 
 @font-face {{
@@ -323,6 +366,7 @@ TEMPLATE = """<!doctype html>
   --font-script:  'GW Caveat', cursive;
 
   --content-w: 720px;
+  --nav-h: 54px;
   color-scheme: dark;
 }}
 
@@ -371,6 +415,66 @@ a:focus-visible, button:focus-visible {{
 }}
 
 .board {{ max-width: var(--content-w); margin: 0 auto; padding: 0 22px 90px; }}
+
+/* ============ site nav ============ */
+.site-nav {{
+  position: sticky;
+  top: 0;
+  z-index: 60;
+  min-height: var(--nav-h);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 20px;
+  padding: 14px 22px;
+  background: rgba(24,15,10,.88);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(251,243,231,.08);
+}}
+.site-nav-brand {{
+  font-family: var(--font-display);
+  font-size: 1rem;
+  color: var(--cream);
+  text-decoration: none;
+  white-space: nowrap;
+}}
+.site-nav-links {{
+  display: flex;
+  gap: 22px;
+}}
+.site-nav-links a {{
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: .8rem;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--cream-60);
+  text-decoration: none;
+  transition: color .2s ease;
+}}
+.site-nav-links a:hover {{ color: var(--cream); }}
+.site-nav-links a.is-active {{ color: var(--gold); }}
+
+/* ============ buttons ============ */
+.btn {{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 22px;
+  padding: 12px 26px;
+  border-radius: 100px;
+  background: var(--gold);
+  color: var(--board);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: .88rem;
+  text-decoration: none;
+  box-shadow: 0 10px 22px -10px rgba(200,155,60,.5);
+  transition: background .2s ease, transform .2s ease;
+}}
+.btn:hover {{ background: #E0B356; transform: translateY(-1px); }}
 
 /* ============ masthead ============ */
 .masthead {{
@@ -425,7 +529,7 @@ a:focus-visible, button:focus-visible {{
 /* ============ category jump nav ============ */
 .jump {{
   position: sticky;
-  top: 0;
+  top: var(--nav-h);
   z-index: 40;
   display: flex;
   flex-wrap: wrap;
@@ -773,8 +877,39 @@ td.price {{
 }}
 </style>
 
-<div class="board">
+{body}
 
+<script>__GSAP_JS__</script>
+<script>__SCROLLTRIGGER_JS__</script>
+<script>__SCROLLTOPLUGIN_JS__</script>
+<script>__ANIMATION_JS__</script>
+"""
+
+# ---- shared page chrome: top nav, masthead, footer, back-to-top ----
+# Two separate HTML documents (index.html, menu.html) share this chrome
+# but each is fully self-contained (fonts/CSS/JS all inlined again in
+# both) — there's no client-side router here, so nothing CAN be shared
+# at the browser level anyway. The cost is that navigating between the
+# two pages re-downloads the ~450KB of embedded fonts/JS rather than
+# reusing a cached external file; accepted for now since this is a
+# two-page site with light traffic, not a place to add a build step for
+# extracting shared assets. Worth revisiting if a third page joins.
+
+def site_nav(active):
+    def link(href, label, key):
+        cls = ' class="is-active"' if key == active else ""
+        return f'<a href="{href}"{cls}>{label}</a>'
+    return f"""
+  <nav class="site-nav" aria-label="Primary">
+    <a href="index.html" class="site-nav-brand">The Golden Whisk</a>
+    <div class="site-nav-links">
+      {link("index.html", "Home", "home")}
+      {link("menu.html", "Menu", "menu")}
+    </div>
+  </nav>"""
+
+def masthead_html(intro, cta=""):
+    return f"""
   <header class="masthead" id="top">
     <svg class="mark" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
       <g stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
@@ -792,9 +927,42 @@ td.price {{
     <p class="eyebrow">Chandigarh Tricity</p>
     <h1 class="wordmark">The Golden Whisk</h1>
     <p class="note">the full site is still baking — here's today's board</p>
-    <p class="intro">Every cake below is mixed and iced only after you order it — nothing sits ready on a shelf. Two sizes on most flavours: a 1&nbsp;kg cake serves about 12–15, a 650&nbsp;g serves about 8–10. Message us on WhatsApp with your flavour, size, and the date you need it.</p>
-  </header>
+    <p class="intro">{intro}</p>
+    {cta}
+  </header>"""
 
+def footer_html(extra=""):
+    return f"""
+  <footer class="board-footer">
+    {extra}
+    <p class="signoff">made with love in a home kitchen</p>
+    <p class="contact">To order: WhatsApp <a href="https://wa.me/919872347816">98723 47816</a></p>
+    <a class="top-link" href="#top">Back to top</a>
+  </footer>"""
+
+BACK_TO_TOP_HTML = """
+<button class="back-to-top" id="backToTop" type="button" aria-label="Back to top">
+  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path d="M12 19V6M12 6L6 12M12 6L18 12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+</button>"""
+
+HOME_INTRO = ("The Golden Whisk is a home bakery in the Chandigarh Tricity, baking custom "
+              "cakes, dry cakes, cookies, and breads — always made to order, never off a "
+              "shelf. Here's a look at a few recent favourites, or jump straight to the "
+              "full menu.")
+HOME_CTA = '<div class="masthead-cta"><a class="btn" href="menu.html">View Full Menu</a></div>'
+
+MENU_INTRO = ("Every cake below is mixed and iced only after you order it — nothing sits "
+              "ready on a shelf. Two sizes on most flavours: a 1&nbsp;kg cake serves about "
+              "12–15, a 650&nbsp;g serves about 8–10. Message us on WhatsApp with your "
+              "flavour, size, and the date you need it.")
+
+MENU_FOOTER_NOTE = ("<p>Prices in ₹. A 1&nbsp;kg cake serves about 12–15 guests, a "
+                     "650&nbsp;g serves about 8–10 — sizes are approximate cake weight, "
+                     "not a guaranteed ingredient count.</p>")
+
+HOME_MAIN = f"""
   <section class="gallery">
     <div class="gallery-inner">
       <div class="gallery-intro">
@@ -803,11 +971,12 @@ td.price {{
         <p class="gallery-sub">Every custom cake starts with a conversation, not a catalogue — this is a small sample of what's come out of the oven lately.</p>
       </div>
       <div class="photocard-grid">
-{gallery}
+{GALLERY_HTML}
       </div>
     </div>
-  </section>
+  </section>"""
 
+MENU_MAIN = f"""
   <nav class="jump" aria-label="Jump to a category">
     <a href="#fruit">Fruit</a>
     <a href="#chocolate">Chocolate</a>
@@ -816,30 +985,34 @@ td.price {{
     <a href="#piece">By the Piece</a>
   </nav>
 
-{categories}
+{CATEGORIES_HTML}"""
 
-  <footer class="board-footer">
-    <p>Prices in ₹. A 1&nbsp;kg cake serves about 12–15 guests, a 650&nbsp;g serves about 8–10 — sizes are approximate cake weight, not a guaranteed ingredient count.</p>
-    <p class="signoff">made with love in a home kitchen</p>
-    <p class="contact">To order: WhatsApp <a href="https://wa.me/919872347816">98723 47816</a></p>
-    <a class="top-link" href="#top">Back to top</a>
-  </footer>
+def render_body(nav_active, intro, cta, main_html, footer_extra):
+    return (
+        site_nav(nav_active)
+        + '\n<div class="board">\n'
+        + masthead_html(intro, cta)
+        + "\n"
+        + main_html
+        + "\n"
+        + footer_html(footer_extra)
+        + "\n\n</div>\n"
+        + BACK_TO_TOP_HTML
+    )
 
-</div>
+HOME_BODY = render_body("home", HOME_INTRO, HOME_CTA, HOME_MAIN, "")
+MENU_BODY = render_body("menu", MENU_INTRO, "", MENU_MAIN, MENU_FOOTER_NOTE)
 
-<button class="back-to-top" id="backToTop" type="button" aria-label="Back to top">
-  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-    <path d="M12 19V6M12 6L6 12M12 6L18 12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-  </svg>
-</button>
+HOME_TITLE = "The Golden Whisk — Cake Board"
+HOME_DESCRIPTION = ("The Golden Whisk — a home bakery in the Chandigarh Tricity baking "
+                     "custom cakes, dry cakes, cookies, and breads, always made to order.")
+MENU_TITLE = "Full Menu — The Golden Whisk"
+MENU_DESCRIPTION = ("The full menu for The Golden Whisk — custom cakes, dry cakes, "
+                     "cookies, and breads, priced by weight. Made to order, nothing sits "
+                     "ready on a shelf.")
 
-<script>__GSAP_JS__</script>
-<script>__SCROLLTRIGGER_JS__</script>
-<script>__SCROLLTOPLUGIN_JS__</script>
-<script>__ANIMATION_JS__</script>
-"""
-
-html_out = TEMPLATE.format(categories=CATEGORIES_HTML, gallery=GALLERY_HTML, **FONTS)
+home_html = TEMPLATE.format(page_title=HOME_TITLE, meta_description=HOME_DESCRIPTION, body=HOME_BODY, **FONTS)
+menu_html = TEMPLATE.format(page_title=MENU_TITLE, meta_description=MENU_DESCRIPTION, body=MENU_BODY, **FONTS)
 
 # Inlined verbatim (not through .format()) so the thousands of literal { }
 # in the minified library source never collide with str.format() syntax.
@@ -977,21 +1150,27 @@ animation_js = r"""
 })();
 """
 
-html_out = html_out.replace("__GSAP_JS__", gsap_js, 1)
-html_out = html_out.replace("__SCROLLTRIGGER_JS__", scrolltrigger_js, 1)
-html_out = html_out.replace("__SCROLLTOPLUGIN_JS__", scrolltoplugin_js, 1)
-html_out = html_out.replace("__ANIMATION_JS__", animation_js, 1)
+def inline_scripts(html_out):
+    html_out = html_out.replace("__GSAP_JS__", gsap_js, 1)
+    html_out = html_out.replace("__SCROLLTRIGGER_JS__", scrolltrigger_js, 1)
+    html_out = html_out.replace("__SCROLLTOPLUGIN_JS__", scrolltoplugin_js, 1)
+    html_out = html_out.replace("__ANIMATION_JS__", animation_js, 1)
+    return html_out
+
+home_html = inline_scripts(home_html)
+menu_html = inline_scripts(menu_html)
 
 DIST_DIR.mkdir(parents=True, exist_ok=True)
-out_path = DIST_DIR / "index.html"
-out_path.write_text(html_out)
+
+for name, content in [("index.html", home_html), ("menu.html", menu_html)]:
+    out_path = DIST_DIR / name
+    out_path.write_text(content)
+    print("wrote", len(content), "bytes to", out_path)
 
 # GitHub Pages reads this file to know which custom domain to serve the
 # site on and to provision the HTTPS certificate for. Sourced from
 # build/CNAME rather than hardcoded here so the domain is easy to find
-# and change in one place.
+# and change in one place. Applies to the whole dist/ site, not per page.
 cname_src = BUILD_DIR / "CNAME"
 if cname_src.exists():
     (DIST_DIR / "CNAME").write_text(cname_src.read_text().strip())
-
-print("wrote", len(html_out), "bytes to", out_path)
