@@ -30,12 +30,12 @@ FRUIT = [
     ("Pineapple", 1200, 800),
     ("Mixed Fruits", 1200, 800),
     ("Fresh Fruits", 1300, 850),
-    ("Strawberry Cake", 1200, 600),
-    ("Strawberry", 600, 350),
+    ("Strawberry Cake", 1200, 800),
+    ("Fresh Strawberry", 1300, 850),
     ("Fresh Strawberry (Seasonal)", 1300, 700),
     ("Fresh Mango (Seasonal)", 1300, 850),
-    ("Blueberry", 800, 500),
-    ("Orange & Cranberry", 800, 500),
+    ("Blueberry", 1300, 850),
+    ("Orange & Cranberry", 1200, 800),
     ("Plum", 1300, 750),
 ]
 
