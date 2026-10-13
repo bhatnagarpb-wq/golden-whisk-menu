@@ -45,6 +45,12 @@ visitor navigating from Home to Menu re-downloads that ~450KB rather than
 reusing it. Acceptable for now; worth revisiting with extracted shared
 assets if a third page joins.
 
+The one exception to "no external requests" is Google Analytics: both
+pages load the Google tag (`gtag.js`, measurement ID `G-B0Y2THJ832`) from
+`googletagmanager.com` in the `<head>`. It's loaded `async`, so the page
+still renders fully if that request is blocked or fails — only the visit
+goes uncounted. The snippet lives in `TEMPLATE` in `build/generate.py`.
+
 To build and stage locally:
 
 ```sh
