@@ -68,7 +68,7 @@ def check_vendor_checksums():
 def check_common(name, html):
     if "__GSAP_JS__" in html or "__ANIMATION_JS__" in html or "__SCROLLTRIGGER_JS__" in html or "__SCROLLTOPLUGIN_JS__" in html:
         fail(f"{name}: a template placeholder was never substituted — build is broken")
-    if "{page_title}" in html or "{body}" in html or "{meta_description}" in html:
+    if "{page_title}" in html or "{body}" in html or "{meta_description}" in html or "{robots_meta}" in html:
         fail(f"{name}: a .format() placeholder was never substituted — build is broken")
 
     if '<meta name="viewport"' not in html:
@@ -78,6 +78,17 @@ def check_common(name, html):
 
     if f"googletagmanager.com/gtag/js?id={GA_MEASUREMENT_ID}" not in html or f"gtag('config', '{GA_MEASUREMENT_ID}')" not in html:
         fail(f"{name}: missing the Google Analytics tag ({GA_MEASUREMENT_ID}) — visits to this page wouldn't be counted")
+
+
+def check_robots(home_html, menu_html):
+    # menu.html is hidden from the nav for now, so it should stay out of
+    # search results too; index.html must never pick up the same tag.
+    noindex = '<meta name="robots" content="noindex"'
+    if noindex not in menu_html:
+        fail("menu.html: missing the noindex robots meta tag — the hidden Menu page could show up in search results")
+    if noindex in home_html:
+        fail("index.html: has a noindex robots meta tag — the home page would drop out of search results")
+    ok("menu.html is noindex, index.html is indexable")
 
 
 def check_nav(name, html, expect_home_link):
@@ -182,6 +193,7 @@ def main():
     check_nav("menu.html", menu_html, expect_home_link=True)
     check_home(home_html)
     check_menu(menu_html)
+    check_robots(home_html, menu_html)
     check_inline_scripts_parse("index.html", home_html)
     check_inline_scripts_parse("menu.html", menu_html)
     check_cname()
