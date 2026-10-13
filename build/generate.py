@@ -312,7 +312,7 @@ TEMPLATE = """<!doctype html>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>{page_title}</title>
 <meta name="description" content="{meta_description}" />
-<!-- Google tag (gtag.js) -->
+{robots_meta}<!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-B0Y2THJ832"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -1480,8 +1480,15 @@ MENU_DESCRIPTION = ("The full menu for The Golden Whisk — custom cakes, dry ca
                      "cookies, and breads, priced by weight. Made to order, nothing sits "
                      "ready on a shelf.")
 
-home_html = TEMPLATE.format(page_title=HOME_TITLE, meta_description=HOME_DESCRIPTION, body=HOME_BODY, **FONTS)
-menu_html = TEMPLATE.format(page_title=MENU_TITLE, meta_description=MENU_DESCRIPTION, body=MENU_BODY, **FONTS)
+# The Menu page is hidden from the nav for now, so it's also kept out of
+# search results. This is a noindex meta tag rather than a robots.txt
+# Disallow on purpose: a crawler has to be able to fetch the page to see
+# noindex, and a Disallow alone doesn't stop a URL from being indexed.
+# Drop MENU_ROBOTS_META when the Menu link comes back.
+MENU_ROBOTS_META = '<meta name="robots" content="noindex" />\n'
+
+home_html = TEMPLATE.format(page_title=HOME_TITLE, meta_description=HOME_DESCRIPTION, robots_meta="", body=HOME_BODY, **FONTS)
+menu_html = TEMPLATE.format(page_title=MENU_TITLE, meta_description=MENU_DESCRIPTION, robots_meta=MENU_ROBOTS_META, body=MENU_BODY, **FONTS)
 
 # Inlined verbatim (not through .format()) so the thousands of literal { }
 # in the minified library source never collide with str.format() syntax.
