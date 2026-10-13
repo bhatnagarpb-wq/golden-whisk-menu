@@ -32,6 +32,7 @@ SOURCES_MD = VENDOR_DIR / "SOURCES.md"
 EXPECTED_CATEGORIES = 5
 EXPECTED_TR = 50
 EXPECTED_PHOTOCARDS = 18
+GA_MEASUREMENT_ID = "G-B0Y2THJ832"
 
 
 def fail(message):
@@ -74,6 +75,9 @@ def check_common(name, html):
         fail(f"{name}: missing <meta name=\"viewport\"> — page would render tiny on phones")
     if '<meta charset="utf-8"' not in html:
         fail(f"{name}: missing <meta charset=\"utf-8\">")
+
+    if f"googletagmanager.com/gtag/js?id={GA_MEASUREMENT_ID}" not in html or f"gtag('config', '{GA_MEASUREMENT_ID}')" not in html:
+        fail(f"{name}: missing the Google Analytics tag ({GA_MEASUREMENT_ID}) — visits to this page wouldn't be counted")
 
 
 def check_nav(name, html, expect_home_link):
