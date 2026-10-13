@@ -18,7 +18,8 @@ full homepage links to).
 - gallery photos in `build/assets/photos/` (base64 WebP, cropped/
   compressed from the originals kept in `build/assets/photos/originals/`
   — see [`build/assets/photos/README.md`](build/assets/photos/README.md)
-  for the exact pipeline; renders into index.html),
+  for the exact pipeline; decoded at build time into
+  `dist/assets/photos/*.webp`, which index.html's gallery links to),
 - font subsets in `build/assets/fonts/` (base64 WOFF2, one per typeface —
   see [`build/vendor/SOURCES.md`](build/vendor/SOURCES.md) for which
   family/weight each one is; the type system matches the main WordPress
@@ -34,9 +35,13 @@ full homepage links to).
   `build/vendor/` (also documented in `SOURCES.md`, with recorded SHA-256
   checksums).
 
-Each page is inlined into one self-contained HTML file — no external
+Each page inlines its own CSS, fonts, and scripts — no third-party
 requests, no build-time network dependency, no CDN to go down or get
-compromised. Fonts and libraries are committed as static files rather
+compromised. The gallery photos are the one thing served as separate
+files, from this same site: inlined, the 18 of them made index.html
+about 1.2MB that had to download in full before anything rendered, and
+`loading="lazy"` has no effect on a data URI. As files, the page itself
+is about 260KB and each photo is only fetched as it scrolls into view. Fonts and libraries are committed as static files rather
 than fetched on every build specifically so the output is reproducible
 and doesn't depend on a third party being reachable or trustworthy at
 build time. The tradeoff: since both pages inline their own copy of the
@@ -62,9 +67,11 @@ cd dist && python3 -m http.server 8420   # stage at http://localhost:8420/ and /
 `scripts/verify.py` re-checks the vendored files' checksums, confirms the
 required meta tags are present, validates every inline `<script>` block
 with `node --check` on both pages, checks the top nav links both pages
-together with the right one marked active, and asserts each page's
+together with the right one marked active, asserts each page's
 content stays on its own page (5 categories / 45 menu items only on
-menu.html, the photo gallery only on index.html). It's the same gate CI
+menu.html, the photo gallery only on index.html), and checks that every
+gallery photo exists in `dist/assets/photos/`, none is inlined, and
+index.html stays under its size budget. It's the same gate CI
 runs before deploying.
 
 **Always open the local staging server and actually look at the change**

@@ -12,8 +12,10 @@ Checks (per page, plus site-wide):
   - no leftover __..._JS__ or {page_title}-style template placeholders
   - both pages have the top nav with a Home link (Menu is deliberately
     unlinked for now — see check_nav)
-  - index.html: 18 gallery photocards each with an embedded WebP photo,
-    and NO category/menu content (that moved to its own page)
+  - index.html: 18 gallery photocards each pointing at a WebP file that
+    exists in dist/assets/photos/, no photo inlined as a data URI, the
+    page under its size budget, and NO category/menu content (that moved
+    to its own page)
   - menu.html: 5 categories, 50 <tr> (45 data rows + 5 header rows), and
     NO gallery content (that's the home page's job)
 """
@@ -32,6 +34,10 @@ SOURCES_MD = VENDOR_DIR / "SOURCES.md"
 EXPECTED_CATEGORIES = 5
 EXPECTED_TR = 50
 EXPECTED_PHOTOCARDS = 18
+# index.html is ~260KB with fonts and scripts inlined. Well above that
+# means something heavy (most likely a photo) got inlined into the page
+# again, which every visitor then downloads before anything renders.
+MAX_HOME_BYTES = 400_000
 GA_MEASUREMENT_ID = "G-B0Y2THJ832"
 
 
@@ -113,10 +119,24 @@ def check_home(html):
         fail(f"index.html: expected {EXPECTED_PHOTOCARDS} gallery photocards, found {photocard_count}")
     ok(f"index.html: {photocard_count} gallery photocards present")
 
-    img_count = len(re.findall(r'<img src="data:image/webp;base64,', html))
-    if img_count != EXPECTED_PHOTOCARDS:
-        fail(f"index.html: expected {EXPECTED_PHOTOCARDS} embedded gallery photos, found {img_count}")
-    ok(f"index.html: {img_count} gallery photos embedded as WebP data URIs")
+    if "data:image/" in html:
+        fail("index.html: a photo is inlined as a data URI — gallery photos should be separate files so they lazy-load")
+    photo_srcs = re.findall(r'<img src="(assets/photos/[\w-]+\.webp)"[^>]*loading="lazy"', html)
+    if len(photo_srcs) != EXPECTED_PHOTOCARDS:
+        fail(f"index.html: expected {EXPECTED_PHOTOCARDS} lazy-loaded gallery photos, found {len(photo_srcs)}")
+    for src in photo_srcs:
+        photo_path = DIST_DIR / src
+        if not photo_path.exists():
+            fail(f"index.html: links to {src}, which is missing from dist/ — the photo would show as a broken image")
+        header = photo_path.read_bytes()[:12]
+        if header[:4] != b"RIFF" or header[8:12] != b"WEBP":
+            fail(f"{src} is not a valid WebP file")
+    ok(f"index.html: {len(photo_srcs)} gallery photos lazy-load from WebP files in dist/assets/photos/")
+
+    home_bytes = len(html.encode())
+    if home_bytes > MAX_HOME_BYTES:
+        fail(f"index.html is {home_bytes:,} bytes, over the {MAX_HOME_BYTES:,} byte budget")
+    ok(f"index.html: {home_bytes:,} bytes, within the {MAX_HOME_BYTES:,} byte budget")
 
     if 'class="category"' in html:
         fail("index.html: found menu category content — that should only be on menu.html now")

@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
+import base64
 import html
+import shutil
 from pathlib import Path
 
 # All paths are relative to this script's own location, not the current
@@ -15,11 +17,20 @@ DIST_DIR = REPO_ROOT / "dist"
 def load(key):
     return (FONTS_DIR / f"{key}.b64").read_text().strip()
 
+# Gallery photos are published as real files next to the pages rather than
+# inlined as data URIs like the fonts and scripts are: 18 inlined photos
+# made index.html ~1.2MB, all of it downloaded before anything could
+# render, and loading="lazy" does nothing for a data URI. As same-origin
+# files they're still served from this site alone (no third party), but
+# the browser only fetches the ones that scroll into view and can cache
+# them between visits.
+PHOTOS_URL = "assets/photos"
+
 def load_photo(key):
-    """Base64 WebP for a gallery photo, sourced from build/assets/photos/*.b64
+    """WebP bytes for a gallery photo, decoded from build/assets/photos/*.b64
     (originals kept in build/assets/photos/originals/ for reference — see
     build/assets/photos/README.md for how these were optimized)."""
-    return (PHOTOS_DIR / f"{key}.b64").read_text().strip()
+    return base64.b64decode((PHOTOS_DIR / f"{key}.b64").read_text())
 
 FONTS = {k: load(k) for k in ["fraunces", "inter400", "inter600", "karla400", "karla600", "spacemono400", "spacemono700", "caveat", "dmseriftext"]}
 
@@ -205,11 +216,13 @@ GALLERY = [
 ]
 
 def photocard(item):
-    photo_b64 = load_photo(item["photo"])
-    alt = html.escape(item["title"] + " — " + item["desc"])
+    # title/desc are already HTML (they carry entities like &amp; and
+    # &ldquo;), so unescape before escaping for the attribute — otherwise
+    # the alt text reads "Lilo &amp; Stitch" literally.
+    alt = html.escape(html.unescape(item["title"] + " — " + item["desc"]))
     return f"""
         <article class="photocard">
-          <div class="photocard-img"><img src="data:image/webp;base64,{photo_b64}" alt="{alt}" loading="lazy" width="640" height="640"></div>
+          <div class="photocard-img"><img src="{PHOTOS_URL}/{item['photo']}.webp" alt="{alt}" loading="lazy" decoding="async" width="640" height="640"></div>
           <h3>{item['title']}</h3>
           <p class="photocard-desc">{item['desc']}</p>
           <div class="photocard-divider"></div>
@@ -1170,8 +1183,8 @@ td.price {{
 
 # ---- shared page chrome: top nav, masthead, footer, back-to-top ----
 # Two separate HTML documents (index.html, menu.html) share this chrome
-# but each is fully self-contained (fonts/CSS/JS all inlined again in
-# both) — there's no client-side router here, so nothing CAN be shared
+# but each carries its own copy of it (fonts/CSS/JS all inlined again in
+# both; only the gallery photos are separate files) — there's no client-side router here, so nothing CAN be shared
 # at the browser level anyway. The cost is that navigating between the
 # two pages re-downloads the ~450KB of embedded fonts/JS rather than
 # reusing a cached external file; accepted for now since this is a
@@ -1769,6 +1782,15 @@ for name, content in [("index.html", home_html), ("menu.html", menu_html)]:
     out_path = DIST_DIR / name
     out_path.write_text(content)
     print("wrote", len(content), "bytes to", out_path)
+
+# Rebuilt from scratch each time so a photo dropped from GALLERY doesn't
+# linger in a local dist/ from an earlier build.
+photos_out = DIST_DIR / PHOTOS_URL
+shutil.rmtree(photos_out, ignore_errors=True)
+photos_out.mkdir(parents=True)
+for item in GALLERY:
+    (photos_out / f"{item['photo']}.webp").write_bytes(load_photo(item["photo"]))
+print("wrote", len(GALLERY), "photos to", photos_out)
 
 # GitHub Pages reads this file to know which custom domain to serve the
 # site on and to provision the HTTPS certificate for. Sourced from

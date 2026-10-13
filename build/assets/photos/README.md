@@ -3,7 +3,8 @@
 Real photos of completed custom orders, shown in the "A Few Recent
 Favourites" gallery section. `originals/` holds the untouched source
 files; the `.b64` files alongside this README are what `generate.py`
-actually reads and inlines into `dist/index.html`.
+actually reads, decoding each one into `dist/assets/photos/<name>.webp`
+for the gallery on `dist/index.html` to load.
 
 ## How the `.b64` files were produced
 
@@ -12,9 +13,7 @@ Each original was:
 1. Center-cropped to a square at full resolution (`sips -c`),
 2. Downsampled to 640×640 (`sips -Z 640`), and
 3. Converted to WebP at quality 80 (`cwebp -q 80`) — roughly a 3x size
-   reduction over an equivalent-quality JPEG, which matters more than
-   usual here since these are inlined as base64 (~33% size overhead)
-   rather than served as separate files.
+   reduction over an equivalent-quality JPEG.
 4. Base64-encoded (`base64 -i file.webp -o file.b64`).
 
 To reprocess (e.g. after swapping in a new original), from this
@@ -34,5 +33,5 @@ base64 -i "/tmp/${f}.webp" -o "$f.b64"
 `cwebp` isn't installed by default on macOS — `brew install webp`. If
 you crop/resize by hand instead (e.g. in an image editor), keep the
 final output square and no larger than ~640×640; anything bigger just
-inflates every future page load for no visible benefit at the size
+inflates the download for no visible benefit at the size
 these render on a card.
