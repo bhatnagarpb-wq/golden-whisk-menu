@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
+import base64
 import html
+import shutil
 from pathlib import Path
 
 # All paths are relative to this script's own location, not the current
@@ -15,11 +17,20 @@ DIST_DIR = REPO_ROOT / "dist"
 def load(key):
     return (FONTS_DIR / f"{key}.b64").read_text().strip()
 
+# Gallery photos are published as real files next to the pages rather than
+# inlined as data URIs like the fonts and scripts are: 18 inlined photos
+# made index.html ~1.2MB, all of it downloaded before anything could
+# render, and loading="lazy" does nothing for a data URI. As same-origin
+# files they're still served from this site alone (no third party), but
+# the browser only fetches the ones that scroll into view and can cache
+# them between visits.
+PHOTOS_URL = "assets/photos"
+
 def load_photo(key):
-    """Base64 WebP for a gallery photo, sourced from build/assets/photos/*.b64
+    """WebP bytes for a gallery photo, decoded from build/assets/photos/*.b64
     (originals kept in build/assets/photos/originals/ for reference — see
     build/assets/photos/README.md for how these were optimized)."""
-    return (PHOTOS_DIR / f"{key}.b64").read_text().strip()
+    return base64.b64decode((PHOTOS_DIR / f"{key}.b64").read_text())
 
 FONTS = {k: load(k) for k in ["fraunces", "inter400", "inter600", "karla400", "karla600", "spacemono400", "spacemono700", "caveat", "dmseriftext"]}
 
@@ -96,49 +107,49 @@ PIECE = [
 GALLERY = [
     dict(
         photo="cake",
-        title="A Golden 50th Anniversary",
+        title="A Golden 50th Anniversary Cake",
         desc="A two-tier gold and white cake marking fifty years together, finished with pearl accents and a hand-lettered gold message.",
         occasion="Anniversary",
     ),
     dict(
         photo="cake_on_table",
-        title="Best Husband, Best Dad",
+        title="A Tic-Tac-Toe Birthday Cake for Dad",
         desc="A tongue-in-cheek tic-tac-toe cake for a husband and dad, finished with hand-cut silhouettes and piped hearts.",
         occasion="Birthday",
     ),
     dict(
         photo="happy_birthday",
-        title="A Birthday to Remember",
+        title="A Fondant-Topper Birthday Cake",
         desc="A hand-sculpted fondant topper brings the birthday message to life, finished with piped blue rosettes and a hand-lettered plaque.",
         occasion="Birthday",
     ),
     dict(
         photo="jai_guru_ji",
-        title="Roses for Guru Ji",
+        title="A Piped-Rose Cake for Guru Ji",
         desc="Delicate piped pink roses and gold leaf detailing, finished with a hand-lettered message band.",
         occasion="Birthday",
     ),
     dict(
         photo="photo_01",
-        title="A BLACKPINK Birthday",
+        title="A BLACKPINK Birthday Cake",
         desc="A BLACKPINK-themed cake with a printed edible topper, piped hearts on skewers, and hand-lettered fondant lettering.",
         occasion="Birthday",
     ),
     dict(
         photo="welcome",
-        title="A Warm Welcome",
+        title="A Welcome Rosette Cake",
         desc="A hand-piped rosette wreath in blush and sky blue, finished with a mirrored gold Welcome topper.",
         occasion="Celebration",
     ),
     dict(
         photo="welcome_arjun",
-        title="Welcome, Baby Arjun",
+        title="A Welcome Baby Cake for Arjun",
         desc="Piped blue stars and tiny fondant footprints welcome the newest arrival, finished with a gold mirrored topper.",
         occasion="Welcome Baby",
     ),
     dict(
         photo="mermaid_birthday",
-        title="A Mermaid's Birthday Wish",
+        title="A Mermaid Birthday Cake",
         desc="A two-tier pink birthday cake with hand-sculpted mermaid tails, gold starfish, and a hand-lettered topper.",
         occasion="Birthday",
     ),
@@ -162,19 +173,19 @@ GALLERY = [
     ),
     dict(
         photo="fairy_princess",
-        title="A Fairy-Tale Birthday for Mehar",
+        title="A Fairy-Tale Birthday Cake for Mehar",
         desc="A pink butterfly-wing cake with a fairy, unicorn, and castle topper, finished with a hand-lettered name plaque.",
         occasion="Birthday",
     ),
     dict(
         photo="harry_potter",
-        title="A Harry Potter Birthday",
+        title="A Harry Potter Birthday Cake",
         desc="A Harry Potter-themed cake with a hand-sculpted golden snitch, sorting hat, wand, and house scarf, finished with gold lettering.",
         occasion="Birthday",
     ),
     dict(
         photo="myra_stitch",
-        title="A Lilo &amp; Stitch Birthday for Myra",
+        title="A Lilo &amp; Stitch Birthday Cake for Myra",
         desc="A pastel ombre cake with Stitch and Angel toppers, piped rosettes, and a hand-lettered name and age.",
         occasion="Birthday",
     ),
@@ -192,7 +203,7 @@ GALLERY = [
     ),
     dict(
         photo="shivanshi_butterfly",
-        title="A Butterfly Birthday for Shivanshi",
+        title="A Butterfly Birthday Cake for Shivanshi",
         desc="A two-tier dark chocolate cake with bronze-gold buttercream rosettes, purple-and-gold butterfly toppers, and edible pearls, finished with a piped name plaque.",
         occasion="Birthday",
     ),
@@ -205,11 +216,13 @@ GALLERY = [
 ]
 
 def photocard(item):
-    photo_b64 = load_photo(item["photo"])
-    alt = html.escape(item["title"] + " — " + item["desc"])
+    # title/desc are already HTML (they carry entities like &amp; and
+    # &ldquo;), so unescape before escaping for the attribute — otherwise
+    # the alt text reads "Lilo &amp; Stitch" literally.
+    alt = html.escape(html.unescape(item["title"] + " — " + item["desc"]))
     return f"""
         <article class="photocard">
-          <div class="photocard-img"><img src="data:image/webp;base64,{photo_b64}" alt="{alt}" loading="lazy" width="640" height="640"></div>
+          <div class="photocard-img"><img src="{PHOTOS_URL}/{item['photo']}.webp" alt="{alt}" loading="lazy" decoding="async" width="640" height="640"></div>
           <h3>{item['title']}</h3>
           <p class="photocard-desc">{item['desc']}</p>
           <div class="photocard-divider"></div>
@@ -295,12 +308,24 @@ WHOLESOME = sort_by_name(WHOLESOME)
 PIECE = sort_by_name(PIECE)
 
 sections = []
-sections.append(category("fruit", "Fruit Cakes", "", FRUIT, "10 flavours"))
-sections.append(category("chocolate", "Chocolate Cakes", "", CHOCOLATE, "12 flavours"))
-sections.append(category("signature", "Signature Flavours", "", SIGNATURE, "12 flavours"))
+sections.append(category(
+    "fruit", "Fruit Cakes",
+    '<p class="card-note">Fresh-fruit cakes like pineapple, blueberry, and mixed fruit — strawberry and mango when they\'re in season.</p>',
+    FRUIT, "10 flavours"
+))
+sections.append(category(
+    "chocolate", "Chocolate Cakes",
+    '<p class="card-note">From a classic chocolate cake to chocolate truffle, Nutella, and Lotus Biscoff.</p>',
+    CHOCOLATE, "12 flavours"
+))
+sections.append(category(
+    "signature", "Signature Flavours",
+    '<p class="card-note">Indian-inspired flavours like rasmalai, paan, and Parsi mawa, alongside classics like Black Forest and red velvet.</p>',
+    SIGNATURE, "12 flavours"
+))
 sections.append(category(
     "wholesome", "Wholesome &amp; Sugar-Free",
-    '<p class="card-note">Whole-wheat, sugar-free, and lighter bakes — most come in 1&nbsp;kg only.</p>',
+    '<p class="card-note">Whole-wheat, ragi, jaggery, and sugar-free cakes — most come in 1&nbsp;kg only.</p>',
     WHOLESOME, "9 flavours"
 ))
 sections.append(category_piece("piece", "By the Piece", PIECE, "2 items"))
@@ -838,6 +863,7 @@ a:focus-visible, button:focus-visible {{
   font-family: var(--font-display);
   font-weight: 600;
   font-size: clamp(1.6rem, 3vw, 2.1rem);
+  line-height: 1.2;
   color: var(--ink);
   text-wrap: balance;
   margin: 0 0 .5em;
@@ -872,7 +898,7 @@ a:focus-visible, button:focus-visible {{
   font-family: var(--font-display);
   font-weight: 600;
   font-size: 1.14rem;
-  line-height: 1.22;
+  line-height: 1.2;
   color: var(--ink);
   margin: 0 6px 10px;
   text-wrap: balance;
@@ -950,6 +976,7 @@ a:focus-visible, button:focus-visible {{
   font-family: var(--font-display);
   font-weight: 600;
   font-size: 1.35rem;
+  line-height: 1.2;
   color: var(--ink);
   margin: 0;
 }}
@@ -1156,8 +1183,8 @@ td.price {{
 
 # ---- shared page chrome: top nav, masthead, footer, back-to-top ----
 # Two separate HTML documents (index.html, menu.html) share this chrome
-# but each is fully self-contained (fonts/CSS/JS all inlined again in
-# both) — there's no client-side router here, so nothing CAN be shared
+# but each carries its own copy of it (fonts/CSS/JS all inlined again in
+# both; only the gallery photos are separate files) — there's no client-side router here, so nothing CAN be shared
 # at the browser level anyway. The cost is that navigating between the
 # two pages re-downloads the ~450KB of embedded fonts/JS rather than
 # reusing a cached external file; accepted for now since this is a
@@ -1229,9 +1256,11 @@ def masthead_html(intro, cta=""):
     {cta}
   </header>"""
 
-# The main WordPress homepage's hero, brought over as-is — copy, stats,
+# The main WordPress homepage's hero, brought over as-is — headline, stats,
 # and the scattered hand-drawn ingredient illustrations are verbatim from
-# front-page.php. Only the two action links were repointed: "See the
+# front-page.php. The eyebrow and sub-paragraph were reworded here to name
+# Mohali and the cake types people search for, so they no longer match the
+# WordPress copy. The two action links were also repointed: "See the
 # Menu" goes to menu.html instead of a WP menu-page permalink, and
 # "Order for This Weekend" goes to WhatsApp instead of a #contact section
 # this stand-in site doesn't have.
@@ -1367,14 +1396,15 @@ HOME_HERO_HTML = """
     </div>
 
     <div class="hero-inner">
-      <p class="hero-eyebrow hero-script" data-reveal>baked only when you order</p>
+      <p class="hero-eyebrow hero-script" data-reveal>custom cakes, baked to order in Mohali</p>
       <h1 class="hero-title">
         <span class="line" data-line>Baked with butter,</span>
         <span class="line" data-line>patience, and a <em>little</em> chaos.</span>
       </h1>
       <p class="hero-sub" data-reveal>
-        The Golden Whisk is a one-woman, one-oven bakery serving the Chandigarh Tricity,
-        taking orders for customised celebration cakes, dry cakes, cookies, and breads.
+        The Golden Whisk is a one-woman, one-oven home bakery in Mohali, baking custom
+        birthday, anniversary, and theme cakes for Chandigarh, Panchkula, and the rest of
+        the Tricity — along with dry cakes, cookies, and breads.
         Nothing sits ready on a shelf — every single bake starts only after your order
         comes in.
       </p>
@@ -1400,6 +1430,7 @@ def footer_html(extra=""):
   <footer class="board-footer">
     {extra}
     <p class="signoff">made with love in a home kitchen</p>
+    <p>Home bakery in Mohali · custom cakes to order across the Chandigarh Tricity</p>
     <p class="contact">To order: WhatsApp <a href="https://wa.me/919872347816">98723 47816</a></p>
     <a class="top-link" href="#top">Back to top</a>
   </footer>"""
@@ -1411,7 +1442,7 @@ BACK_TO_TOP_HTML = """
   </svg>
 </button>"""
 
-MENU_INTRO = ("Every cake below is mixed and iced only after you order it — nothing sits "
+MENU_INTRO = ("Our full cake menu, with prices for 1&nbsp;kg and 650&nbsp;g. Every cake below is mixed and iced only after you order it — nothing sits "
               "ready on a shelf. Two sizes on most flavours: a 1&nbsp;kg cake serves about "
               "12–15, a 650&nbsp;g serves about 8–10. Message us on WhatsApp with your "
               "flavour, size, and the date you need it.")
@@ -1425,7 +1456,7 @@ HOME_MAIN = f"""
     <div class="gallery-inner">
       <div class="gallery-intro">
         <p class="eyebrow">Custom Cakes</p>
-        <h2 class="gallery-heading">A Few Recent Favourites</h2>
+        <h2 class="gallery-heading">Custom Birthday &amp; Anniversary Cakes We've Baked Lately</h2>
         <p class="gallery-sub">Every custom cake starts with a conversation, not a catalogue — this is a small sample of what's come out of the oven lately.</p>
       </div>
       <div class="photocard-grid">
@@ -1472,13 +1503,14 @@ HOME_BODY = (
 )
 MENU_BODY = render_body("menu", MENU_INTRO, "", MENU_MAIN, MENU_FOOTER_NOTE)
 
-HOME_TITLE = "The Golden Whisk — Cake Board"
-HOME_DESCRIPTION = ("The Golden Whisk — a home bakery in the Chandigarh Tricity baking "
-                     "custom cakes, dry cakes, cookies, and breads, always made to order.")
-MENU_TITLE = "Full Menu — The Golden Whisk"
-MENU_DESCRIPTION = ("The full menu for The Golden Whisk — custom cakes, dry cakes, "
-                     "cookies, and breads, priced by weight. Made to order, nothing sits "
-                     "ready on a shelf.")
+HOME_TITLE = "Custom Cakes in Mohali &amp; Chandigarh | The Golden Whisk"
+HOME_DESCRIPTION = ("Home bakery in Mohali baking custom birthday, anniversary, and theme "
+                     "cakes for the Chandigarh Tricity. Always made to order — message us "
+                     "on WhatsApp.")
+MENU_TITLE = "Cake Menu &amp; Prices — Mohali Home Bakery | The Golden Whisk"
+MENU_DESCRIPTION = ("Cake flavours and prices for 1 kg and 650 g: chocolate truffle, "
+                     "rasmalai, Lotus Biscoff, and red velvet, plus whole-wheat, ragi, and "
+                     "sugar-free cakes. Made to order in Mohali.")
 
 # The Menu page is hidden from the nav for now, so it's also kept out of
 # search results. This is a noindex meta tag rather than a robots.txt
@@ -1750,6 +1782,15 @@ for name, content in [("index.html", home_html), ("menu.html", menu_html)]:
     out_path = DIST_DIR / name
     out_path.write_text(content)
     print("wrote", len(content), "bytes to", out_path)
+
+# Rebuilt from scratch each time so a photo dropped from GALLERY doesn't
+# linger in a local dist/ from an earlier build.
+photos_out = DIST_DIR / PHOTOS_URL
+shutil.rmtree(photos_out, ignore_errors=True)
+photos_out.mkdir(parents=True)
+for item in GALLERY:
+    (photos_out / f"{item['photo']}.webp").write_bytes(load_photo(item["photo"]))
+print("wrote", len(GALLERY), "photos to", photos_out)
 
 # GitHub Pages reads this file to know which custom domain to serve the
 # site on and to provision the HTTPS certificate for. Sourced from
